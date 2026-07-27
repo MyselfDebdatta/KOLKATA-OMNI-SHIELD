@@ -3,6 +3,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useThermalStore } from "@/store/thermal";
 import { VoiceDispatcher } from "@/components/omni/VoiceDispatcher";
 import { Header } from "@/components/omni/Header";
+import { CalculationDisclosure } from "@/components/omni/CalculationDisclosure";
 import { ShieldAlert, Wind, ThermometerSun, Droplets, Map as MapIcon, Box, ArrowRight, Activity, AlertTriangle, Info, Globe2, Sun, Waves, Sprout, Flame } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from "recharts";
 import jsPDF from "jspdf";
@@ -254,6 +255,24 @@ function ThermalPage() {
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
+                   </div>
+
+                   <div className="mt-8">
+                     <CalculationDisclosure
+                        formula={[
+                          "BaseRisk = (Temp × 0.4) + (Humidity × 0.1) + (AC Load × 0.3) + (Power Draw × 0.1) + (Density × 0.1)",
+                          "RiskScore = (BaseRisk / 60) * 100",
+                        ]}
+                        notes={[
+                          "Temperature (40% weight) and AC Load Exhaust (30% weight) are the primary drivers of localized urban heat islands.",
+                          "Building Density (10%) traps the heat from dissipating.",
+                          "Scores above 85% trigger CRITICAL automated alerts.",
+                        ]}
+                        sources={[
+                          { name: "Urban Heat Island Effect", org: "Omni-Shield Live Telemetry" },
+                          { name: "Deterministic Threat Engine", org: "Local Digital Twin Sandbox" }
+                        ]}
+                     />
                    </div>
                 </div>
               )}
