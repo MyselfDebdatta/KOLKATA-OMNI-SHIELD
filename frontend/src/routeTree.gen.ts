@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ThermalRouteImport } from './routes/thermal'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as EnergyRouteImport } from './routes/energy'
 import { Route as EmergencyRouteImport } from './routes/emergency'
@@ -16,6 +17,11 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ThermalRoute = ThermalRouteImport.update({
+  id: '/thermal',
+  path: '/thermal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/emergency': typeof EmergencyRoute
   '/energy': typeof EnergyRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/thermal': typeof ThermalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/emergency': typeof EmergencyRoute
   '/energy': typeof EnergyRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/thermal': typeof ThermalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +79,27 @@ export interface FileRoutesById {
   '/emergency': typeof EmergencyRoute
   '/energy': typeof EnergyRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/thermal': typeof ThermalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/app' | '/emergency' | '/energy' | '/leaderboard'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/app'
+    | '/emergency'
+    | '/energy'
+    | '/leaderboard'
+    | '/thermal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/app' | '/emergency' | '/energy' | '/leaderboard'
+  to:
+    | '/'
+    | '/admin'
+    | '/app'
+    | '/emergency'
+    | '/energy'
+    | '/leaderboard'
+    | '/thermal'
   id:
     | '__root__'
     | '/'
@@ -85,6 +108,7 @@ export interface FileRouteTypes {
     | '/emergency'
     | '/energy'
     | '/leaderboard'
+    | '/thermal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,10 +118,18 @@ export interface RootRouteChildren {
   EmergencyRoute: typeof EmergencyRoute
   EnergyRoute: typeof EnergyRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  ThermalRoute: typeof ThermalRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/thermal': {
+      id: '/thermal'
+      path: '/thermal'
+      fullPath: '/thermal'
+      preLoaderRoute: typeof ThermalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -150,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmergencyRoute: EmergencyRoute,
   EnergyRoute: EnergyRoute,
   LeaderboardRoute: LeaderboardRoute,
+  ThermalRoute: ThermalRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

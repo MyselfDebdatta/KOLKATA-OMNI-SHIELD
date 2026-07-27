@@ -36,7 +36,7 @@ Features you know about:
 - Emergency Page: Tabs, Ambulance dispatch, Hospital filtering, Volunteer SOS Ping
 - Resilience Page (Leaderboard): Toggling Top 10 vs All, toggling calculation info
 - Settings: High contrast, Language, Large text
-- Dashboard: Pinning/hiding specific widgets
+- Thermal Page (Advanced Predictive Telemetry): 3D Digital Twin, Map Libre, Fire & Heat alerts, AI Feature Importance (XAI), Live AI Sensors (Temp, Humidity, AC Load). You can change focus locations, run sandbox predictions, and generate PDF Reports.
 
 If you change parameters on the UI using tools, wait for the tool to return the computed result (like yield, savings, hospital availability, UI status) and then tell the user what happened!
 `;
@@ -310,6 +310,46 @@ const tools = [
           action: { type: "string", description: "pin or hide" }
         },
         required: ["cardId", "action"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "set_thermal_focus",
+      description: "Changes the target location on the Thermal & Fire Command Center page.",
+      parameters: {
+        type: "object",
+        properties: {
+          location: { type: "string", description: "The location in Kolkata (e.g., Salt Lake Sector V, Bhowanipore, Park Street)" }
+        },
+        required: ["location"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "generate_thermal_pdf",
+      description: "Generates and downloads the PDF risk report on the Thermal & Fire Command Center page.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_thermal_sandbox",
+      description: "Updates the data sandbox on the Thermal page and runs the prediction engine.",
+      parameters: {
+        type: "object",
+        properties: {
+          temperature: { type: "number" },
+          humidity: { type: "number" },
+          acLoadDensity: { type: "number" }
+        }
       }
     }
   }

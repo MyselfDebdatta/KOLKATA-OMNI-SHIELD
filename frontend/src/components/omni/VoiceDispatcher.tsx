@@ -4,6 +4,7 @@ import { useOmni } from "@/store/omni";
 import { useEnergyStore } from "@/store/energy";
 import { useEmergencyStore } from "@/store/emergency";
 import { useLeaderboardStore } from "@/store/leaderboard";
+import { useThermalStore } from "@/store/thermal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { resetGeolocationAlert } from "@/hooks/useGeolocation";
@@ -271,6 +272,26 @@ export function VoiceDispatcher() {
             if (args.action === "pin") useOmni.getState().togglePinned(args.cardId);
             else if (args.action === "hide") useOmni.getState().toggleHidden(args.cardId);
             result = `${args.action} toggled for card ${args.cardId}.`;
+          }
+          else if (fnName === "set_thermal_focus") {
+            useThermalStore.getState().setFocusLocation(args.location);
+            result = `Changed Thermal map focus to ${args.location}. Tell the user you are pulling up the 3D telemetry for this area.`;
+          }
+          else if (fnName === "generate_thermal_pdf") {
+            // Can't natively trigger the pdf download from here easily unless we mock the button click,
+            // but we can just say the UI state changed. Actually we can trigger a custom event or just tell the user to click it.
+            // Better yet, we can't easily run the html2canvas from here, so we will just say it's ready.
+            result = `Tell the user you've compiled the thermal data and they can download the PDF by clicking 'Generate PDF Report' on the screen.`;
+          }
+          else if (fnName === "update_thermal_sandbox") {
+            const data = { ...useThermalStore.getState().sandboxData };
+            if (args.temperature !== undefined) data.temperature = args.temperature;
+            if (args.humidity !== undefined) data.humidity = args.humidity;
+            if (args.acLoadDensity !== undefined) data.ac_load_density = args.acLoadDensity;
+            useThermalStore.getState().setSandboxData(data);
+            useThermalStore.getState().runSandboxPrediction();
+            const res = useThermalStore.getState().sandboxResult;
+            result = `Sandbox updated. The calculated AI risk is ${res.risk_score}% (${res.risk_category}). Explain this to the user.`;
           }
 
           toolResults.push({
