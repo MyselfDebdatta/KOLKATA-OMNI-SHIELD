@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { useThermalStore } from "@/store/thermal";
 import { VoiceDispatcher } from "@/components/omni/VoiceDispatcher";
 import { ShieldAlert, Wind, ThermometerSun, Droplets, Map as MapIcon, Box, ArrowRight, Activity, AlertTriangle, Info, Globe2, Sun, Waves, Sprout, FlaskConical } from "lucide-react";
+import { lazy, Suspense } from "react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from "recharts";
-import Map, { Marker as MaplibreMarker, NavigationControl } from "react-map-gl/maplibre";
-import "maplibre-gl/dist/maplibre-gl.css";
+
+const ThermalMap = lazy(() => import("@/components/omni/ThermalMap"));
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -18,6 +19,11 @@ export const Route = createFileRoute("/thermal")({
 
 function ThermalPage() {
   const [tab, setTab] = useState<"map" | "analytics" | "alerts" | "xai" | "sandbox">("map");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const focusLocation = useThermalStore((s) => s.focusLocation);
   const setFocusLocation = useThermalStore((s) => s.setFocusLocation);
@@ -169,43 +175,9 @@ function ThermalPage() {
               <div className="w-full flex shrink-0" style={{ height: "65vh" }}>
                <div className="flex-1 relative border-r border-border">
                   <div className="absolute inset-0 bg-black">
-                    <Map
-                      initialViewState={{
-                        longitude: liveTelemetry?.lng || 88.3639,
-                        latitude: liveTelemetry?.lat || 22.5726,
-                        zoom: 13,
-                        pitch: 60,
-                        bearing: 0
-                      }}
-                      mapStyle={{
-                        version: 8,
-                        sources: {
-                          'satellite-tiles': {
-                            type: 'raster',
-                            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                            tileSize: 256,
-                          }
-                        },
-                        layers: [
-                          { id: 'satellite-layer', type: 'raster', source: 'satellite-tiles', minzoom: 0, maxzoom: 22 }
-                        ]
-                      }}
-                    >
-                      <NavigationControl position="bottom-right" visualizePitch={true} />
-                      {alerts.map((alert, idx) => (
-                        <MaplibreMarker key={idx} longitude={alert.lng} latitude={alert.lat} anchor="bottom">
-                          <div className="relative flex items-center justify-center cursor-pointer group">
-                            <div className="absolute w-20 h-20 rounded-full animate-ping bg-red-500/40"></div>
-                            <div className="relative w-8 h-8 rounded-full border-2 border-white bg-red-600 shadow-xl flex items-center justify-center">
-                               <AlertTriangle className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-white/20">
-                              {alert.location} ({alert.risk})
-                            </div>
-                          </div>
-                        </MaplibreMarker>
-                      ))}
-                    </Map>
+                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground">Loading Map Engine...</div>}>
+                      {isMounted && <ThermalMap />}
+                    </Suspense>
                   </div>
                </div>
                
