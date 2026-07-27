@@ -202,12 +202,12 @@ function ThermalPage() {
             </div>
 
             {/* Right Column - Dynamic Content */}
-            <div className="lg:col-span-2 rounded-3xl bg-card/40 border border-border overflow-hidden flex flex-col min-h-[600px]">
+            <div className="lg:col-span-2 rounded-3xl bg-card/40 border border-border overflow-hidden flex flex-col h-[700px] relative">
               
               {/* TAB: MAP */}
               {tab === "map" && (
-                <div className="flex-1 w-full relative min-h-0">
-                  <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 w-full h-full">
+                  <div className="absolute inset-0 z-0 bg-[#1a1a1a]">
                     <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground">Loading Map Engine...</div>}>
                       {isMounted && <ThermalMap />}
                     </Suspense>
