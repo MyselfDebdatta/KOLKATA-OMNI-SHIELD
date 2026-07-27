@@ -12,6 +12,7 @@ import { haversine } from "@/lib/haversine";
 import { useOmni } from "@/store/omni";
 import { fetchLiveAQI, fetchLiveWeather, fetchImdNowcast } from "@/lib/livedata";
 import { fetchLiveAmbulances, fetchLiveBloodBank, fetchTransportStatus, pingVolunteers, type Ambulance, type BloodInventory, type Roadblock, type MetroLine } from "@/lib/simulated-api";
+import { useEmergencyStore } from "@/store/emergency";
 
 export const Route = createFileRoute("/emergency")({
   head: () => ({
@@ -40,28 +41,39 @@ function EmergencyPage() {
   const fetchHazards = useOmni((s) => s.fetchHazards);
   const helplines = useOmni((s) => s.helplines);
 
-  const [activeTab, setActiveTab] = useState<"Medical" | "Transport" | "Guides">("Medical");
+  const activeTab = useEmergencyStore((s) => s.activeTab);
+  const setActiveTab = useEmergencyStore((s) => s.setActiveTab);
+
+  const ambFilter = useEmergencyStore((s) => s.ambFilter);
+  const setAmbFilter = useEmergencyStore((s) => s.setAmbFilter);
+  const dispatchingId = useEmergencyStore((s) => s.dispatchingId);
+  const dispatchedIds = useEmergencyStore((s) => s.dispatchedIds);
+  const dispatchAmbulance = useEmergencyStore((s) => s.dispatchAmbulance);
+
+  const pingStatus = useEmergencyStore((s) => s.pingStatus);
+  const isPinging = useEmergencyStore((s) => s.isPinging);
+  const triggerPing = useEmergencyStore((s) => s.triggerPing);
+
+  const hSearch = useEmergencyStore((s) => s.hSearch);
+  const setHSearch = useEmergencyStore((s) => s.setHSearch);
+  const hNeighborhood = useEmergencyStore((s) => s.hNeighborhood);
+  const setHNeighborhood = useEmergencyStore((s) => s.setHNeighborhood);
+  const needBed = useEmergencyStore((s) => s.needBed);
+  const setNeedBed = useEmergencyStore((s) => s.setNeedBed);
+  const needOxygen = useEmergencyStore((s) => s.needOxygen);
+  const setNeedOxygen = useEmergencyStore((s) => s.setNeedOxygen);
+  const bloodFilter = useEmergencyStore((s) => s.bloodFilter);
+  const setBloodFilter = useEmergencyStore((s) => s.setBloodFilter);
+
+  const sSearch = useEmergencyStore((s) => s.sSearch);
+  const setSSearch = useEmergencyStore((s) => s.setSSearch);
+  const sType = useEmergencyStore((s) => s.sType);
+  const setSType = useEmergencyStore((s) => s.setSType);
 
   // Simulated live data state
   const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
-  const [ambFilter, setAmbFilter] = useState<"All" | "ALS" | "BLS">("All");
-  const [dispatchingId, setDispatchingId] = useState<string | null>(null);
-  const [dispatchedIds, setDispatchedIds] = useState<Set<string>>(new Set());
   const [bloodBanks, setBloodBanks] = useState<BloodInventory[]>([]);
   const [transport, setTransport] = useState<{ roads: Roadblock[]; metros: MetroLine[] }>({ roads: [], metros: [] });
-  const [pingStatus, setPingStatus] = useState<{ responding: number; etaMins: number } | null>(null);
-  const [isPinging, setIsPinging] = useState(false);
-
-  // Hospital filters
-  const [hSearch, setHSearch] = useState("");
-  const [hNeighborhood, setHNeighborhood] = useState<string>("all");
-  const [needBed, setNeedBed] = useState(false);
-  const [needOxygen, setNeedOxygen] = useState(false);
-  const [bloodFilter, setBloodFilter] = useState<BloodType | "any">("any");
-
-  // Shelter filters
-  const [sSearch, setSSearch] = useState("");
-  const [sType, setSType] = useState<"all" | "Shelter" | "Cooling">("all");
 
   // Pagination
   const [showAllHospitals, setShowAllHospitals] = useState(false);
@@ -110,21 +122,12 @@ function EmergencyPage() {
   }, [currentLocation]);
 
   const handleDispatch = async (id: string) => {
-    setDispatchingId(id);
-    // Simulate API call to dispatch ambulance
-    await new Promise(r => setTimeout(r, 1200));
-    setDispatchingId(null);
-    setDispatchedIds(prev => new Set(prev).add(id));
+    await dispatchAmbulance(id);
   };
 
   const handlePingVolunteers = async () => {
-    setIsPinging(true);
-    setPingStatus(null);
-    try {
-      const res = await pingVolunteers(currentLocation?.lat ?? 0, currentLocation?.lng ?? 0);
-      setPingStatus(res);
-    } finally {
-      setIsPinging(false);
+    if (currentLocation) {
+      await triggerPing(currentLocation.lat, currentLocation.lng);
     }
   };
 

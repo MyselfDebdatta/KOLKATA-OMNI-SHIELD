@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Mic, MicOff, Loader2, X } from "lucide-react";
 import { useOmni } from "@/store/omni";
 import { useEnergyStore } from "@/store/energy";
+import { useEmergencyStore } from "@/store/emergency";
+import { useLeaderboardStore } from "@/store/leaderboard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { resetGeolocationAlert } from "@/hooks/useGeolocation";
@@ -226,6 +228,49 @@ export function VoiceDispatcher() {
             await new Promise(r => setTimeout(r, 150));
             const res = useEnergyStore.getState().waterResults;
             result = `Rainwater parameters updated on UI. Tell the user: We can harvest a volume of ${res.liters.toLocaleString()} liters. Pumping this would cost ${Math.round(res.pumpCost)} rupees using ${res.pumpKwh.toFixed(2)} kWh.`;
+          }
+          else if (fnName === "set_emergency_tab") {
+            useEmergencyStore.getState().setActiveTab(args.tab);
+            result = `Switched emergency tab to ${args.tab}.`;
+          }
+          else if (fnName === "dispatch_ambulance") {
+            useEmergencyStore.getState().setAmbFilter(args.type);
+            result = `Filtered map to ${args.type} ambulances. Tell the user you are locating the nearest ${args.type} unit.`;
+          }
+          else if (fnName === "ping_volunteers") {
+            const loc = useOmni.getState().currentLocation;
+            if (loc) {
+              useEmergencyStore.getState().triggerPing(loc.lat, loc.lng);
+              result = `Triggered volunteer ping. Wait for UI and tell user the ping is sent to local volunteers.`;
+            } else {
+              result = `Failed: location unknown.`;
+            }
+          }
+          else if (fnName === "filter_hospitals") {
+            if (args.needBed !== undefined) useEmergencyStore.getState().setNeedBed(args.needBed);
+            if (args.needOxygen !== undefined) useEmergencyStore.getState().setNeedOxygen(args.needOxygen);
+            if (args.bloodFilter) useEmergencyStore.getState().setBloodFilter(args.bloodFilter);
+            if (args.search) useEmergencyStore.getState().setHSearch(args.search);
+            result = `Hospital filters applied. Tell the user you have filtered the list based on their criteria.`;
+          }
+          else if (fnName === "toggle_leaderboard_view") {
+            useLeaderboardStore.getState().setShowAllWards(!useLeaderboardStore.getState().showAllWards);
+            result = `Toggled leaderboard view on UI.`;
+          }
+          else if (fnName === "toggle_calculation_info") {
+            useLeaderboardStore.getState().setShowCalculation(!useLeaderboardStore.getState().showCalculation);
+            result = `Toggled calculation info on UI.`;
+          }
+          else if (fnName === "set_app_settings") {
+            if (args.language) useOmni.getState().setLanguage(args.language);
+            if (args.toggleHighContrast) useOmni.getState().toggleHighContrast();
+            if (args.toggleLargeText) useOmni.getState().toggleLargeText();
+            result = `App settings updated.`;
+          }
+          else if (fnName === "toggle_dashboard_card") {
+            if (args.action === "pin") useOmni.getState().togglePinned(args.cardId);
+            else if (args.action === "hide") useOmni.getState().toggleHidden(args.cardId);
+            result = `${args.action} toggled for card ${args.cardId}.`;
           }
 
           toolResults.push({

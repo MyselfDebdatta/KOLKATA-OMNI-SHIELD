@@ -32,13 +32,13 @@ Features you know about:
 - Drone Dispatch (for hazards)
 - Storm/Cyclone Simulation
 - Map Layers (Flood, Heat, Crime, AQI)
-- Energy Page: Rooftop Solar Calculator & Energy Yield
-- Energy Page: Micro-Wind Potential & Turbine Calculator
-- Energy Page: Thermal Load, Heatwave Advisory & Smart AC Calculator
-- Energy Page: Smart HEPA Purifier Load & Air Quality
-- Energy Page: Monsoon Water Management & Sump Pump Calculator
+- Energy Page: Calculators (Solar, Wind, AC, Purifier, Rainwater)
+- Emergency Page: Tabs, Ambulance dispatch, Hospital filtering, Volunteer SOS Ping
+- Resilience Page (Leaderboard): Toggling Top 10 vs All, toggling calculation info
+- Settings: High contrast, Language, Large text
+- Dashboard: Pinning/hiding specific widgets
 
-If you change parameters on the Energy page using the tools, wait for the tool to return the computed result (like yield or savings) and then tell the user what the new calculated values are!
+If you change parameters on the UI using tools, wait for the tool to return the computed result (like yield, savings, hospital availability, UI status) and then tell the user what happened!
 `;
 
 const tools = [
@@ -203,6 +203,113 @@ const tools = [
         properties: {
           catchmentArea: { type: "number", description: "Catchment or basement area in square meters" }
         }
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "set_emergency_tab",
+      description: "Changes the active tab on the emergency page.",
+      parameters: {
+        type: "object",
+        properties: {
+          tab: { type: "string", description: "The tab to switch to: Medical, Transport, or Guides" }
+        },
+        required: ["tab"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "dispatch_ambulance",
+      description: "Dispatches an ambulance of a specific type. Used on the emergency page.",
+      parameters: {
+        type: "object",
+        properties: {
+          type: { type: "string", description: "ALS or BLS" }
+        },
+        required: ["type"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "ping_volunteers",
+      description: "Triggers the SOS ping to volunteers. Used on the emergency page.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "filter_hospitals",
+      description: "Filters the hospital list on the emergency page.",
+      parameters: {
+        type: "object",
+        properties: {
+          needBed: { type: "boolean" },
+          needOxygen: { type: "boolean" },
+          bloodFilter: { type: "string", description: "A+, B-, etc., or 'any'" },
+          search: { type: "string", description: "Search term" }
+        }
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "toggle_leaderboard_view",
+      description: "Toggles the leaderboard view between Top 10 and All Wards on the resilience page.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "toggle_calculation_info",
+      description: "Toggles the mathematical breakdown/calculation info on the resilience page.",
+      parameters: {
+        type: "object",
+        properties: {}
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "set_app_settings",
+      description: "Changes global application settings like language, high contrast, or large text.",
+      parameters: {
+        type: "object",
+        properties: {
+          language: { type: "string", description: "Language code: en, bn, or hi" },
+          toggleHighContrast: { type: "boolean", description: "If true, toggles the high contrast mode" },
+          toggleLargeText: { type: "boolean", description: "If true, toggles the large text mode" }
+        }
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "toggle_dashboard_card",
+      description: "Pins or hides a specific widget card on the dashboard.",
+      parameters: {
+        type: "object",
+        properties: {
+          cardId: { type: "string", description: "The ID of the card (e.g. aqi, heat, crime, flood, energy, health, routes, report)" },
+          action: { type: "string", description: "pin or hide" }
+        },
+        required: ["cardId", "action"]
       }
     }
   }

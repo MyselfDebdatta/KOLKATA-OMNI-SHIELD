@@ -6,6 +6,7 @@ import { Header } from "@/components/omni/Header";
 import { VoiceDispatcher } from "@/components/omni/VoiceDispatcher";
 import { resilienceScore } from "@/lib/kolkata-data";
 import { useOmni } from "@/store/omni";
+import { useLeaderboardStore } from "@/store/leaderboard";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/leaderboard")({
@@ -24,8 +25,10 @@ function LeaderboardPage() {
   const fetchStaticData = useOmni((s) => s.fetchStaticData);
   const zones = useOmni((s) => s.zones);
   
-  const [showAllWards, setShowAllWards] = useState(false);
-  const [showCalculation, setShowCalculation] = useState(false);
+  const showAllWards = useLeaderboardStore((s) => s.showAllWards);
+  const setShowAllWards = useLeaderboardStore((s) => s.setShowAllWards);
+  const showCalculation = useLeaderboardStore((s) => s.showCalculation);
+  const setShowCalculation = useLeaderboardStore((s) => s.setShowCalculation);
 
   useEffect(() => {
     fetchHazards();
