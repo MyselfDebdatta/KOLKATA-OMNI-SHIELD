@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Zone {
+  id         String   @id @default(uuid())
+  zoneId     String   @unique
+  name       String
+  ward       String
+  lat        Float
+  lng        Float
+  crime      Int
+  aqi        Int
+  heat       Int
+  flood      Int
+  population Int?
+}
+
+model PoliceStation {
+  id   String @id @default(uuid())
+  name String
+  lat  Float
+  lng  Float
+}
+
+model Hub {
+  id           String @id @default(uuid())
+  name         String
+  lat          Float
+  lng          Float
+  type         String // "Cooling" | "Shelter"
+  capacity     Int
+  amenities    String // Stored as comma separated string
+  neighborhood String
+  phone        String?
+}
+
+model Hospital {
+  id           String @id @default(uuid())
+  name         String
+  lat          Float
+  lng          Float
+  beds         Int
+  oxygen       String // "available" | "limited" | "critical"
+  blood        String // JSON string or comma separated
+  phone        String
+  neighborhood String
+  emergency    Boolean
+}
+
+model MetroStation {
+  id        String @id @default(uuid())
+  name      String
+  lat       Float
+  lng       Float
+  line      String
+  lastTrain String
+}
+
+model Ambulance {
+  id      String @id @default(uuid())
+  ambId   String @unique
+  type    String // "BLS" | "ALS"
+  lat     Float
+  lng     Float
+  etaMins Int
+  status  String // "Available" | "Dispatched"
+  plate   String
+}
+
+model BloodInventory {
+  id           String @id @default(uuid())
+  hospitalName String @unique
+  oxygenStatus String
+  bloodUnits   String // JSON string representing { "O+": 12, "A-": 2 }
+  lastUpdated  DateTime @default(now())
+}
+
+model Roadblock {
+  id       String @id @default(uuid())
+  roadId   String @unique
+  road     String
+  status   String // "Clear" | "Waterlogged" | "Blocked by Debris"
+  severity Int
+}
+
+model MetroLineStatus {
+  id        String @id @default(uuid())
+  lineId    String @unique
+  name      String
+  status    String // "Normal Service" | "Delayed" | "Suspended"
+  delayMins Int
+}
+
+model HazardReport {
+  id            String   @id @default(uuid())
+  hazardId      String   @unique
+  category      String   // "light" | "flood" | "trash" | "unsafe"
+  label         String
+  color         String
+  severity      String   // "low" | "med" | "high"
+  note          String
+  photo         String?
+  lat           Float
+  lng           Float
+  ward          String
+  createdAt     DateTime @default(now())
+  upvotes       Int      @default(0)
+  downvotes     Int      @default(0)
+  confirmations Int      @default(0)
+  reporter      String
+}
+
+model CctvCamera {
+  id           String @id @default(uuid())
+  cameraId     String @unique
+  name         String
+  lat          Float
+  lng          Float
+  status       String // "active" | "offline"
+  intersection String
+}
+
+model MetroLine {
+  id     String @id @default(uuid())
+  name   String @unique
+  color  String
+  coords String // JSON string
+}
+
+model Helpline {
+  id     String @id @default(uuid())
+  number String @unique
+  label  String
+  desc   String
+}

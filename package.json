@@ -1,0 +1,8 @@
+{
+  "name": "kolkata-safe-path-workspace",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
