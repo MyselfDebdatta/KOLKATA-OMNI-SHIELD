@@ -213,7 +213,7 @@ function ThermalPage() {
                     </Suspense>
                   </div>
                   {/* Floating overlay on map */}
-                  <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
+                  <div className="absolute bottom-6 left-6 right-16 pointer-events-none z-10">
                     <div className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-4 pointer-events-auto">
                        <h3 className="font-bold text-sm text-white mb-3 flex items-center gap-2">
                          <Activity size={16} className="text-red-500" /> Historical Trend (24h)
