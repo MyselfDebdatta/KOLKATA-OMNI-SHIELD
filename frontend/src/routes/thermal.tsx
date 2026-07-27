@@ -86,16 +86,16 @@ function ThermalPage() {
       <div className="relative z-10 flex min-h-screen flex-col">
         <Header />
 
-        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 md:px-6 md:py-8 flex flex-col gap-6">
+        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 md:px-6 md:py-8 flex flex-col gap-6 pb-32">
           {/* Top Control Bar */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
                 <Flame className="text-red-500 h-8 w-8" />
-                Thermal Command Center
+                Urban Heat & Fire Intelligence
               </h1>
               <p className="text-muted-foreground mt-1 text-sm max-w-2xl">
-                Digital Twin AI ported from AgniDrishti. Analyzes heat islands, building density, and telemetry to predict fire risks.
+                Advanced Digital Twin AI built for Omni-Shield. Continuously analyzes urban heat islands, building density, and city telemetry to proactively detect and predict fire risks.
               </p>
             </div>
             <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-1.5 rounded-full">
@@ -106,10 +106,14 @@ function ThermalPage() {
                  className="bg-black/40 border border-white/10 rounded-full px-4 py-1.5 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-red-500/50"
                >
                  <option value="Salt Lake Sector V">Salt Lake Sector V</option>
-                 <option value="Burra Bazar">Burra Bazar</option>
+                 <option value="Burra Bazar (W23)">Burra Bazar (W23)</option>
+                 <option value="Howrah (W17)">Howrah (W17)</option>
+                 <option value="Behala (W124)">Behala (W124)</option>
                  <option value="Park Street">Park Street</option>
-                 <option value="Howrah Station">Howrah Station</option>
-                 <option value="New Town">New Town</option>
+                 <option value="New Town (AA-II)">New Town (AA-II)</option>
+                 <option value="Jadavpur">Jadavpur</option>
+                 <option value="Ballygunge">Ballygunge</option>
+                 <option value="Gariahat">Gariahat</option>
                </select>
             </div>
           </div>
@@ -153,10 +157,10 @@ function ThermalPage() {
               {/* Navigation Tabs */}
               <div className="rounded-3xl bg-card/40 border border-border p-2 flex flex-col gap-1">
                  {[
-                   { id: "map", label: "Live Heatmap", icon: MapIcon },
-                   { id: "xai", label: "Explainable AI (SHAP)", icon: Activity },
-                   { id: "sandbox", label: "Simulator Sandbox", icon: Box },
-                   { id: "alerts", label: "Active Alerts", icon: ShieldAlert },
+                   { id: "map", label: "Thermal Grid View", icon: MapIcon },
+                   { id: "xai", label: "AI Risk Analysis", icon: Activity },
+                   { id: "sandbox", label: "Scenario Predictor", icon: Box },
+                   { id: "alerts", label: "City Alerts", icon: ShieldAlert },
                  ].map(item => (
                    <button
                      key={item.id}
@@ -194,14 +198,14 @@ function ThermalPage() {
               {/* TAB: MAP */}
               {tab === "map" && (
                 <div className="w-full h-full relative">
-                  <div className="absolute inset-0 bg-black/50">
+                  <div className="absolute inset-0">
                     <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground">Loading Map Engine...</div>}>
                       {isMounted && <ThermalMap />}
                     </Suspense>
                   </div>
                   {/* Floating overlay on map */}
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <div className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-4">
+                  <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
+                    <div className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-4 pointer-events-auto">
                        <h3 className="font-bold text-sm text-white mb-3 flex items-center gap-2">
                          <Activity size={16} className="text-red-500" /> Historical Trend (24h)
                        </h3>
@@ -249,7 +253,7 @@ function ThermalPage() {
               {/* TAB: SANDBOX */}
               {tab === "sandbox" && (
                 <div className="p-8 h-full flex flex-col overflow-y-auto">
-                   <h2 className="text-xl font-bold text-white mb-2">Digital Twin Sandbox</h2>
+                   <h2 className="text-xl font-bold text-white mb-2">Scenario Predictor</h2>
                    <p className="text-sm text-muted-foreground mb-8">
                      Override live telemetry to simulate "What-If" scenarios in {focusLocation}. 
                    </p>
