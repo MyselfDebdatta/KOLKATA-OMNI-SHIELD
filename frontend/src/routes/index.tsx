@@ -1044,6 +1044,14 @@ const FEATURES = [
     mock: <MockSOS />,
   },
   {
+    tag: "Predictive", icon: Flame, color: "var(--crimson)", frameType: "browser", bgClass: "bg-[#1f1414]/95",
+    title: "Thermal & Fire Command Center (Digital Twin)",
+    desc: "Predictive AI twin ported from AgniDrishti, now localized for Kolkata wards. Simulates real-time urban heat buildup and building fire risks using environmental telemetry.",
+    bullets: ["Explainable AI (XAI) charts", "Real-time SHAP analysis", "PDF report generation", "Interactive Sandbox"],
+    mockTitle: "Thermal · AI Twin",
+    mock: <MockThermal />,
+  },
+  {
     tag: "Forecast", icon: Sun, color: "var(--amber)", frameType: "widget", bgClass: "bg-[#1f1a14]/95",
     title: "Solar / Wind energy forecasts for every rooftop",
     desc: "Encourage rooftop solar adoption with hourly irradiance + turbine yield projections — also powers emergency cooling hubs.",
@@ -1098,6 +1106,7 @@ const COMPARE = [
   { cap: "Hold-to-trigger SOS + Guardians", cells: [true, false, false, false, "voice call only"] },
   { cap: "Solar + wind energy forecast", cells: [true, false, false, false, false] },
   { cap: "Time-travel 24h prediction", cells: [true, false, false, false, false] },
+  { cap: "Digital Twin (Thermal & Fire)", cells: [true, false, false, false, false] },
   { cap: "Free, no-account access", cells: [true, true, true, "freemium", true] },
 ];
 

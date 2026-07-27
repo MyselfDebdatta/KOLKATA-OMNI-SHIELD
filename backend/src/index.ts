@@ -354,11 +354,99 @@ const server = http.createServer(async (req, res) => {
         return res.end(JSON.stringify({ risk: overallRisk, activeAlerts: alerts }));
       }
 
+      if (parsedUrl.pathname === "/api/thermal/alerts") {
+        const mockAlerts = [
+          { location: "Salt Lake Sector V", lat: 22.5726, lng: 88.4339, risk: "CRITICAL", time: new Date().toISOString(), message: "High server load heat" },
+          { location: "Burra Bazar", lat: 22.5855, lng: 88.3582, risk: "HIGH", time: new Date().toISOString(), message: "Dense building heat trap" },
+          { location: "Park Street", lat: 22.5555, lng: 88.3522, risk: "ELEVATED", time: new Date().toISOString(), message: "Restaurant exhaust cluster" },
+        ];
+        res.writeHead(200, { ...CORS_HEADERS, "Content-Type": "application/json" });
+        return res.end(JSON.stringify(mockAlerts));
+      }
+
+      if (parsedUrl.pathname === "/api/thermal/data") {
+        const urlObj = new URL(`http://localhost${req.url}`);
+        const location = urlObj.searchParams.get("location") || "Kolkata City";
+        
+        const isCritical = location === "Salt Lake Sector V";
+        const temp = isCritical ? 42.5 : 37.2;
+        const humidity = isCritical ? 68 : 75;
+        const ac = isCritical ? 92 : 45;
+        const power = isCritical ? 8.5 : 3.2;
+        const density = isCritical ? 85 : 50;
+
+        const baseRisk = (temp * 0.4) + (humidity * 0.1) + (ac * 0.3) + (power * 0.1) + (density * 0.1);
+        const riskScore = Math.min(Math.round((baseRisk / 60) * 100), 100);
+
+        const data = {
+          telemetry: {
+            lat: isCritical ? 22.5726 : 22.5726,
+            lng: isCritical ? 88.4339 : 88.3639,
+            ambient_temp: temp,
+            surface_temp: temp + 5,
+            humidity,
+            ac_load: ac,
+            power_draw: power,
+            building_density: density
+          },
+          prediction: {
+            risk_score: riskScore,
+            status: riskScore > 85 ? "CRITICAL" : riskScore > 65 ? "HIGH" : "ELEVATED",
+            trend: "up"
+          },
+          features: [
+            { feature: "AC Load Exhaust", value: ac * 0.4, impact: "positive" },
+            { feature: "Ambient Temp", value: temp * 0.3, impact: "positive" },
+            { feature: "Humidity", value: humidity * 0.1, impact: "positive" },
+            { feature: "Building Density", value: density * 0.2, impact: "positive" },
+            { feature: "Green Cover", value: 10, impact: "negative" }
+          ],
+          history: Array.from({ length: 24 }).map((_, i) => ({
+            time: `${i}:00`,
+            temp: temp - 5 + Math.random() * 8,
+            risk: Math.max(20, riskScore - 20 + Math.random() * 30)
+          }))
+        };
+        
+        res.writeHead(200, { ...CORS_HEADERS, "Content-Type": "application/json" });
+        return res.end(JSON.stringify(data));
+      }
+
     } catch (e) {
       console.error(e);
       res.writeHead(500, CORS_HEADERS);
       return res.end(JSON.stringify({ error: "Internal Server Error" }));
     }
+  }
+
+  if (req.method === "POST" && parsedUrl.pathname === "/api/thermal/sandbox") {
+    let body = "";
+    req.on("data", chunk => body += chunk.toString());
+    req.on("end", () => {
+      try {
+        const input = JSON.parse(body);
+        const { ambient_temp, humidity, ac_load, power_draw, building_density } = input;
+        
+        // Exact equation from AgniDrishti / Thermal logic
+        const baseRisk = (ambient_temp * 0.4) + (humidity * 0.1) + (ac_load * 0.3) + (power_draw * 0.1) + (building_density * 0.1);
+        const riskScore = Math.min(Math.round((baseRisk / 60) * 100), 100);
+        
+        const explanation = [
+          `Ambient Temp (${ambient_temp}°C) contributes 40% to base risk.`,
+          `AC Load (${ac_load}%) contributes 30% due to exhausted heat.`,
+          `Building Density (${building_density}%) limits ventilation.`,
+          riskScore > 80 ? "CRITICAL: The combination of high AC exhaust and temperature creates a dangerous localized heat island." : "Status is stable."
+        ];
+        
+        res.writeHead(200, { ...CORS_HEADERS, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ new_risk_score: riskScore, explanation }));
+      } catch (e) {
+        console.error(e);
+        res.writeHead(500, CORS_HEADERS);
+        res.end(JSON.stringify({ error: "Failed to run sandbox prediction" }));
+      }
+    });
+    return;
   }
 
   if (req.method === "POST" && parsedUrl.pathname === "/api/hazards") {
