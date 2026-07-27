@@ -356,9 +356,15 @@ const server = http.createServer(async (req, res) => {
 
       if (parsedUrl.pathname === "/api/thermal/alerts") {
         const mockAlerts = [
-          { location: "Salt Lake Sector V", lat: 22.5726, lng: 88.4339, risk: "CRITICAL", time: new Date().toISOString(), message: "High server load heat" },
-          { location: "Burra Bazar", lat: 22.5855, lng: 88.3582, risk: "HIGH", time: new Date().toISOString(), message: "Dense building heat trap" },
-          { location: "Park Street", lat: 22.5555, lng: 88.3522, risk: "ELEVATED", time: new Date().toISOString(), message: "Restaurant exhaust cluster" },
+          { location: "Salt Lake Sector V", lat: 22.5726, lng: 88.4339, risk: "CRITICAL", time: new Date().toISOString(), message: "Critical server load heat" },
+          { location: "Burra Bazar (W23)", lat: 22.5855, lng: 88.3582, risk: "CRITICAL", time: new Date().toISOString(), message: "Dense building heat trap" },
+          { location: "Howrah (W17)", lat: 22.5800, lng: 88.3299, risk: "HIGH", time: new Date().toISOString(), message: "Industrial exhaust cluster" },
+          { location: "Park Street", lat: 22.5555, lng: 88.3522, risk: "HIGH", time: new Date().toISOString(), message: "High commercial AC load" },
+          { location: "Ballygunge", lat: 22.5280, lng: 88.3659, risk: "ELEVATED", time: new Date().toISOString(), message: "Traffic gridlock surface heat" },
+          { location: "Gariahat", lat: 22.5173, lng: 88.3657, risk: "ELEVATED", time: new Date().toISOString(), message: "Dense market heat retention" },
+          { location: "Jadavpur", lat: 22.4989, lng: 88.3639, risk: "ELEVATED", time: new Date().toISOString(), message: "Localized power grid stress" },
+          { location: "Behala (W124)", lat: 22.4920, lng: 88.3149, risk: "NORMAL", time: new Date().toISOString(), message: "Stable heat dissipation" },
+          { location: "New Town (AA-II)", lat: 22.5880, lng: 88.4735, risk: "NORMAL", time: new Date().toISOString(), message: "Green cover cooling active" },
         ];
         res.writeHead(200, { ...CORS_HEADERS, "Content-Type": "application/json" });
         return res.end(JSON.stringify(mockAlerts));

@@ -15,6 +15,9 @@ export default function ThermalMap() {
     <Map
       key={focusLocation}
       style={{ width: '100%', height: '100%' }}
+      interactive={true}
+      dragPan={true}
+      scrollZoom={true}
       initialViewState={{
         longitude: liveTelemetry?.lng || 88.3639,
         latitude: liveTelemetry?.lat || 22.5726,

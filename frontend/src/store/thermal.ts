@@ -77,8 +77,15 @@ export const useThermalStore = create<State>((set, get) => ({
       console.warn("Backend /alerts failed, using fallback alerts.", error);
       set({
         alerts: [
-          { location: "Salt Lake Sector V", lat: 22.5726, lng: 88.4339, risk: "CRITICAL", time: new Date().toLocaleTimeString(), message: "[Fallback] High server load heat" },
-          { location: "Burra Bazar", lat: 22.5855, lng: 88.3582, risk: "HIGH", time: new Date().toLocaleTimeString(), message: "[Fallback] Dense building heat trap" }
+          { location: "Salt Lake Sector V", lat: 22.5726, lng: 88.4339, risk: "CRITICAL", time: new Date().toLocaleTimeString(), message: "[Fallback] Critical server load heat" },
+          { location: "Burra Bazar (W23)", lat: 22.5855, lng: 88.3582, risk: "CRITICAL", time: new Date().toLocaleTimeString(), message: "[Fallback] Dense building heat trap" },
+          { location: "Howrah (W17)", lat: 22.5800, lng: 88.3299, risk: "HIGH", time: new Date().toLocaleTimeString(), message: "[Fallback] Industrial exhaust cluster" },
+          { location: "Park Street", lat: 22.5555, lng: 88.3522, risk: "HIGH", time: new Date().toLocaleTimeString(), message: "[Fallback] High commercial AC load" },
+          { location: "Ballygunge", lat: 22.5280, lng: 88.3659, risk: "ELEVATED", time: new Date().toLocaleTimeString(), message: "[Fallback] Traffic gridlock surface heat" },
+          { location: "Gariahat", lat: 22.5173, lng: 88.3657, risk: "ELEVATED", time: new Date().toLocaleTimeString(), message: "[Fallback] Dense market heat retention" },
+          { location: "Jadavpur", lat: 22.4989, lng: 88.3639, risk: "ELEVATED", time: new Date().toLocaleTimeString(), message: "[Fallback] Localized power grid stress" },
+          { location: "Behala (W124)", lat: 22.4920, lng: 88.3149, risk: "NORMAL", time: new Date().toLocaleTimeString(), message: "[Fallback] Stable heat dissipation" },
+          { location: "New Town (AA-II)", lat: 22.5880, lng: 88.4735, risk: "NORMAL", time: new Date().toLocaleTimeString(), message: "[Fallback] Green cover cooling active" },
         ]
       });
     }
