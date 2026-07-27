@@ -125,22 +125,37 @@ export const useThermalStore = create<State>((set, get) => ({
     } catch (error) {
       console.warn("Backend /data failed, using fallback data.", error);
       
-      const isCritical = location === "Salt Lake Sector V";
-      const temp = isCritical ? 42.5 : 37.2;
-      const humidity = isCritical ? 68 : 75;
-      const ac = isCritical ? 92 : 45;
-      const density = isCritical ? 85 : 50;
-      const riskScore = isCritical ? 94 : 45;
+      const profiles: Record<string, {lat: number, lng: number, t: number, h: number, a: number, d: number, p: number}> = {
+        "Salt Lake Sector V": { lat: 22.5726, lng: 88.4339, t: 42.5, h: 68, a: 92, d: 85, p: 8.5 },
+        "Burra Bazar (W23)":  { lat: 22.5855, lng: 88.3582, t: 40.1, h: 72, a: 75, d: 98, p: 6.2 },
+        "Howrah (W17)":       { lat: 22.5800, lng: 88.3299, t: 39.5, h: 75, a: 60, d: 90, p: 5.5 },
+        "Behala (W124)":      { lat: 22.4920, lng: 88.3149, t: 38.0, h: 78, a: 45, d: 70, p: 4.1 },
+        "Park Street":        { lat: 22.5555, lng: 88.3522, t: 41.2, h: 65, a: 88, d: 82, p: 7.8 },
+        "New Town (AA-II)":   { lat: 22.5880, lng: 88.4735, t: 37.5, h: 60, a: 70, d: 45, p: 5.0 },
+        "Jadavpur":           { lat: 22.4989, lng: 88.3639, t: 38.8, h: 70, a: 55, d: 65, p: 4.8 },
+        "Ballygunge":         { lat: 22.5280, lng: 88.3659, t: 39.2, h: 68, a: 80, d: 75, p: 6.5 },
+        "Gariahat":           { lat: 22.5173, lng: 88.3657, t: 40.5, h: 66, a: 82, d: 85, p: 7.0 },
+      };
+
+      const prof = profiles[location] || { lat: 22.5726, lng: 88.3639, t: 37.2, h: 75, a: 45, d: 50, p: 3.2 };
+      const temp = prof.t;
+      const humidity = prof.h;
+      const ac = prof.a;
+      const density = prof.d;
+      const power = prof.p;
+
+      const baseRisk = (temp * 0.4) + (humidity * 0.1) + (ac * 0.3) + (power * 0.1) + (density * 0.1);
+      const riskScore = Math.min(Math.round((baseRisk / 60) * 100), 100);
 
       const fallbackData: ThermalData = {
         telemetry: {
           temperature: temp, humidity, wind_speed: 12.5, wind_direction: "SE",
           solar_radiation: 850, soil_moisture: 15, drought_index: 7.5,
-          lat: 22.5726, lng: 88.4339, ambient_temp: temp, ac_load: ac, building_density: density
+          lat: prof.lat, lng: prof.lng, ambient_temp: temp, ac_load: ac, building_density: density
         },
         prediction: {
           risk_score: riskScore,
-          risk_category: isCritical ? "CRITICAL" : "ELEVATED",
+          risk_category: riskScore > 85 ? "CRITICAL" : riskScore > 65 ? "HIGH" : "ELEVATED",
           confidence: 92.4,
           reasons: [
              `[Fallback] Heat Index: ${temp}°C`,
@@ -148,13 +163,13 @@ export const useThermalStore = create<State>((set, get) => ({
              `[Fallback] Urban Density: ${density}%`
           ],
           feature_importance: [
-            { feature: "AC Load Exhaust", impact: 0.4, fill: "#EF4444" },
-            { feature: "Ambient Temp", impact: 0.3, fill: "#EF4444" },
-            { feature: "Humidity", impact: 0.1, fill: "#EF4444" },
+            { feature: "AC Load Exhaust", impact: (ac * 0.4)/100, fill: "#EF4444" },
+            { feature: "Ambient Temp", impact: (temp * 0.3)/100, fill: "#EF4444" },
+            { feature: "Humidity", impact: (humidity * 0.1)/100, fill: "#EF4444" },
             { feature: "Green Cover", impact: -0.1, fill: "#10B981" }
           ]
         },
-        history: Array.from({ length: 24 }).map((_, i) => ({ time: `${i}:00`, risk: riskScore - Math.random() * 10 }))
+        history: Array.from({ length: 24 }).map((_, i) => ({ time: `${i}:00`, risk: Math.max(20, riskScore - 20 + Math.random() * 30) }))
       };
 
       set((state) => ({

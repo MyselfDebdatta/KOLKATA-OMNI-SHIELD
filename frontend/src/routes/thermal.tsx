@@ -88,13 +88,21 @@ function ThermalPage() {
 
         <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 md:px-6 md:py-8 flex flex-col gap-6 pb-32">
           {/* Top Control Bar */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-2">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Flame className="text-red-500 h-8 w-8" />
+              <div className="mb-3 flex items-center gap-2">
+                <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                  Live AI Engine
+                </span>
+                <span className="rounded-full border border-border bg-white/5 px-3 py-1 text-xs font-medium text-muted-foreground">
+                  Omni-Shield Integrated
+                </span>
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3 sm:text-4xl md:text-5xl">
                 Urban Heat & Fire Intelligence
               </h1>
-              <p className="text-muted-foreground mt-1 text-sm max-w-2xl">
+              <p className="text-muted-foreground mt-3 text-base max-w-2xl leading-relaxed">
                 Advanced Digital Twin AI built for Omni-Shield. Continuously analyzes urban heat islands, building density, and city telemetry to proactively detect and predict fire risks.
               </p>
             </div>

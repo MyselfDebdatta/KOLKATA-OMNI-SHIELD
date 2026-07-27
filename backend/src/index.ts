@@ -368,20 +368,33 @@ const server = http.createServer(async (req, res) => {
         const urlObj = new URL(`http://localhost${req.url}`);
         const location = urlObj.searchParams.get("location") || "Kolkata City";
         
-        const isCritical = location === "Salt Lake Sector V";
-        const temp = isCritical ? 42.5 : 37.2;
-        const humidity = isCritical ? 68 : 75;
-        const ac = isCritical ? 92 : 45;
-        const power = isCritical ? 8.5 : 3.2;
-        const density = isCritical ? 85 : 50;
+        // Dynamic location profiles for realistic varied data
+        const profiles: Record<string, {lat: number, lng: number, t: number, h: number, a: number, d: number, p: number}> = {
+          "Salt Lake Sector V": { lat: 22.5726, lng: 88.4339, t: 42.5, h: 68, a: 92, d: 85, p: 8.5 },
+          "Burra Bazar (W23)":  { lat: 22.5855, lng: 88.3582, t: 40.1, h: 72, a: 75, d: 98, p: 6.2 },
+          "Howrah (W17)":       { lat: 22.5800, lng: 88.3299, t: 39.5, h: 75, a: 60, d: 90, p: 5.5 },
+          "Behala (W124)":      { lat: 22.4920, lng: 88.3149, t: 38.0, h: 78, a: 45, d: 70, p: 4.1 },
+          "Park Street":        { lat: 22.5555, lng: 88.3522, t: 41.2, h: 65, a: 88, d: 82, p: 7.8 },
+          "New Town (AA-II)":   { lat: 22.5880, lng: 88.4735, t: 37.5, h: 60, a: 70, d: 45, p: 5.0 },
+          "Jadavpur":           { lat: 22.4989, lng: 88.3639, t: 38.8, h: 70, a: 55, d: 65, p: 4.8 },
+          "Ballygunge":         { lat: 22.5280, lng: 88.3659, t: 39.2, h: 68, a: 80, d: 75, p: 6.5 },
+          "Gariahat":           { lat: 22.5173, lng: 88.3657, t: 40.5, h: 66, a: 82, d: 85, p: 7.0 },
+        };
+
+        const prof = profiles[location] || { lat: 22.5726, lng: 88.3639, t: 37.2, h: 75, a: 45, d: 50, p: 3.2 };
+        const temp = prof.t;
+        const humidity = prof.h;
+        const ac = prof.a;
+        const power = prof.p;
+        const density = prof.d;
 
         const baseRisk = (temp * 0.4) + (humidity * 0.1) + (ac * 0.3) + (power * 0.1) + (density * 0.1);
         const riskScore = Math.min(Math.round((baseRisk / 60) * 100), 100);
 
         const data = {
           telemetry: {
-            lat: isCritical ? 22.5726 : 22.5726,
-            lng: isCritical ? 88.4339 : 88.3639,
+            lat: prof.lat,
+            lng: prof.lng,
             ambient_temp: temp,
             surface_temp: temp + 5,
             humidity,
@@ -392,7 +405,7 @@ const server = http.createServer(async (req, res) => {
           prediction: {
             risk_score: riskScore,
             status: riskScore > 85 ? "CRITICAL" : riskScore > 65 ? "HIGH" : "ELEVATED",
-            trend: "up"
+            trend: riskScore > 75 ? "up" : "stable"
           },
           features: [
             { feature: "AC Load Exhaust", value: ac * 0.4, impact: "positive" },
