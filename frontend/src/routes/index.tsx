@@ -1018,6 +1018,32 @@ function MockPurifier() {
   );
 }
 
+function MockThermal() {
+  return (
+    <div className="p-4 md:p-6 flex flex-col h-full justify-center">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-10 w-10 rounded-xl bg-red-500/20 flex items-center justify-center border border-red-500/30">
+          <Flame className="h-5 w-5 text-red-500" />
+        </div>
+        <div>
+          <div className="text-white font-bold text-lg">Salt Lake V</div>
+          <div className="text-red-400 font-medium text-[10px] uppercase tracking-widest">Critical Risk</div>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="w-full bg-black/40 rounded-xl p-3 border border-white/5 flex items-center justify-between">
+          <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">AC Load</span>
+          <span className="text-white font-bold">92%</span>
+        </div>
+        <div className="w-full bg-black/40 rounded-xl p-3 border border-white/5 flex items-center justify-between">
+          <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Ambient</span>
+          <span className="text-white font-bold">42.5°C</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const FEATURES = [
   {
     tag: "Live map", icon: MapPin, color: "var(--emerald)", frameType: "widget", bgClass: "bg-[#0b1f1a]/95",
