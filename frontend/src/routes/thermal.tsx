@@ -5,7 +5,7 @@ import { VoiceDispatcher } from "@/components/omni/VoiceDispatcher";
 import { Header } from "@/components/omni/Header";
 import { CalculationDisclosure } from "@/components/omni/CalculationDisclosure";
 import { ShieldAlert, Wind, ThermometerSun, Droplets, Map as MapIcon, Box, ArrowRight, Activity, AlertTriangle, Info, Globe2, Sun, Waves, Sprout, Flame } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from "recharts";
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -447,15 +447,48 @@ function ThermalPage() {
                   </p>
                   <div className="flex-1 w-full min-h-[300px] relative">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={activeData?.forecast || []}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                        <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" tick={{ fill: '#e2e8f0', fontSize: 12 }} />
-                        <YAxis domain={['auto', 'auto']} stroke="hsl(var(--muted-foreground))" tick={{ fill: '#e2e8f0', fontSize: 12 }} />
-                        <RechartsTooltip 
-                          contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} 
+                      <AreaChart data={activeData?.forecast || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} opacity={0.4} />
+                        <XAxis 
+                          dataKey="time" 
+                          stroke="hsl(var(--muted-foreground))" 
+                          tick={{ fill: '#e2e8f0', fontSize: 11 }} 
+                          tickMargin={12}
+                          minTickGap={20}
+                          axisLine={false}
+                          tickLine={false}
                         />
-                        <Line type="monotone" dataKey="temp" name="Temperature (°C)" stroke="#ef4444" strokeWidth={3} dot={false} />
-                      </LineChart>
+                        <YAxis 
+                          domain={['dataMin - 2', 'dataMax + 2']} 
+                          stroke="hsl(var(--muted-foreground))" 
+                          tick={{ fill: '#e2e8f0', fontSize: 11 }}
+                          axisLine={false}
+                          tickLine={false}
+                          tickFormatter={(val) => `${val}°C`}
+                        />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: 'rgba(9,9,11,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
+                          itemStyle={{ color: '#ef4444', fontWeight: 'bold' }}
+                          labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
+                          cursor={{ stroke: 'rgba(239,68,68,0.5)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="temp" 
+                          name="Temperature" 
+                          stroke="#ef4444" 
+                          strokeWidth={3} 
+                          fillOpacity={1} 
+                          fill="url(#colorTemp)" 
+                          activeDot={{ r: 6, fill: "#ef4444", stroke: "#fff", strokeWidth: 2 }} 
+                        />
+                      </AreaChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
@@ -468,15 +501,49 @@ function ThermalPage() {
              <h3 className="font-bold text-sm text-white mb-4 flex items-center gap-2">
                <Activity size={18} className="text-red-500" /> Historical Trend (24h)
              </h3>
-             <div className="h-48 w-full">
+             <div className="h-48 w-full relative -ml-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={history}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12, fill: '#e2e8f0' }} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12, fill: '#e2e8f0' }} />
-                    <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} />
-                    <Line type="monotone" dataKey="risk" name="Risk Score" stroke="#ef4444" strokeWidth={3} dot={false} />
-                  </LineChart>
+                  <AreaChart data={history} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} opacity={0.4} />
+                    <XAxis 
+                      dataKey="time" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      tick={{ fontSize: 11, fill: '#e2e8f0' }} 
+                      minTickGap={20} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tickMargin={8}
+                    />
+                    <YAxis 
+                      domain={['auto', 'auto']} 
+                      stroke="hsl(var(--muted-foreground))" 
+                      tick={{ fontSize: 11, fill: '#e2e8f0' }} 
+                      axisLine={false} 
+                      tickLine={false}
+                    />
+                    <RechartsTooltip 
+                      contentStyle={{ backgroundColor: 'rgba(9,9,11,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
+                      itemStyle={{ color: '#ef4444', fontWeight: 'bold' }}
+                      labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
+                      cursor={{ stroke: 'rgba(239,68,68,0.5)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="risk" 
+                      name="Risk Score" 
+                      stroke="#ef4444" 
+                      strokeWidth={3} 
+                      fill="url(#colorRisk)" 
+                      fillOpacity={1} 
+                      activeDot={{ r: 6, fill: "#ef4444", stroke: "#fff", strokeWidth: 2 }} 
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
              </div>
           </div>
