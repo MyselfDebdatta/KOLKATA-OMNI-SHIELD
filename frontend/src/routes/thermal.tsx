@@ -260,12 +260,10 @@ function ThermalPage() {
               
               {/* TAB: MAP */}
               {tab === "map" && (
-                <div className="w-full h-[500px] rounded-xl overflow-hidden relative m-4">
-                  <div className="absolute inset-0 z-0 bg-[#1a1a1a]">
-                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground">Loading Map Engine...</div>}>
-                      {isMounted && <ThermalMap />}
-                    </Suspense>
-                  </div>
+                <div className="w-full h-full relative bg-[#1a1a1a]">
+                  <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground">Loading Map Engine...</div>}>
+                    {isMounted && <ThermalMap />}
+                  </Suspense>
                 </div>
               )}
 

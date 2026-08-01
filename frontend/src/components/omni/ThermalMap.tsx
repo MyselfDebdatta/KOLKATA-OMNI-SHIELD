@@ -13,6 +13,14 @@ export default function ThermalMap() {
   const activeData = globalData[focusLocation];
   const liveTelemetry = activeData?.telemetry;
 
+  const [viewState, setViewState] = useState({
+    longitude: 88.3639,
+    latitude: 22.5726,
+    zoom: 13.5,
+    pitch: 60,
+    bearing: 0
+  });
+
   useEffect(() => {
     if (liveTelemetry?.lng && liveTelemetry?.lat) {
       mapRef.current?.flyTo({
@@ -27,13 +35,8 @@ export default function ThermalMap() {
   return (
     <Map
       ref={mapRef}
-      initialViewState={{
-        longitude: 88.3639,
-        latitude: 22.5726,
-        zoom: 13.5,
-        pitch: 60,
-        bearing: 0
-      }}
+      {...viewState}
+      onMove={evt => setViewState(evt.viewState)}
       style={{ width: '100%', height: '100%' }}
       interactive={true}
       dragPan={true}
