@@ -170,7 +170,7 @@ function ThermalPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 mb-6">
               
               {/* Right Column - Telemetry & Risk (Span 1, Order 2 on desktop) */}
-              <div className="lg:col-span-1 flex flex-col gap-6 h-auto lg:h-[600px] order-1 lg:order-2">
+              <div className="lg:col-span-1 flex flex-col gap-6 h-auto lg:h-[750px] order-1 lg:order-2">
                 
                 {/* Core Risk Panel */}
               <div className={`rounded-3xl p-6 border relative overflow-hidden transition-all ${
@@ -256,7 +256,7 @@ function ThermalPage() {
             </div>
 
             {/* Left Column - Dynamic Content (Span 2, Order 1 on desktop) */}
-            <div className="lg:col-span-2 rounded-3xl bg-card/40 border border-border overflow-hidden flex flex-col h-[600px] relative order-2 lg:order-1">
+            <div className="lg:col-span-2 rounded-3xl bg-card/40 border border-border overflow-hidden flex flex-col h-[750px] relative order-2 lg:order-1">
               
               {/* TAB: MAP */}
               {tab === "map" && (
