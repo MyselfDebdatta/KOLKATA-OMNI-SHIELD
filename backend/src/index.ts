@@ -365,6 +365,20 @@ const server = http.createServer(async (req, res) => {
           { location: "Jadavpur", lat: 22.4989, lng: 88.3639, risk: "ELEVATED", time: new Date().toISOString(), message: "Localized power grid stress" },
           { location: "Behala (W124)", lat: 22.4920, lng: 88.3149, risk: "NORMAL", time: new Date().toISOString(), message: "Stable heat dissipation" },
           { location: "New Town (AA-II)", lat: 22.5880, lng: 88.4735, risk: "NORMAL", time: new Date().toISOString(), message: "Green cover cooling active" },
+          { location: "Sealdah (W50)", lat: 22.5670, lng: 88.3716, risk: "HIGH", time: new Date().toISOString(), message: "Station area dense congestion" },
+          { location: "Esplanade (W62)", lat: 22.5645, lng: 88.3525, risk: "HIGH", time: new Date().toISOString(), message: "Traffic AC exhaust accumulation" },
+          { location: "Tollygunge (W108)", lat: 22.4950, lng: 88.3440, risk: "NORMAL", time: new Date().toISOString(), message: "Canal breeze cooling effect" },
+          { location: "Dum Dum (W1)", lat: 22.6241, lng: 88.4239, risk: "ELEVATED", time: new Date().toISOString(), message: "Airport vicinity heat reflection" },
+          { location: "Baranagar (W3)", lat: 22.6410, lng: 88.3700, risk: "NORMAL", time: new Date().toISOString(), message: "Riverfront stable temperatures" },
+          { location: "Ultadanga (W33)", lat: 22.5936, lng: 88.3840, risk: "HIGH", time: new Date().toISOString(), message: "Junction heat pocket" },
+          { location: "Kalighat (W82)", lat: 22.5200, lng: 88.3440, risk: "ELEVATED", time: new Date().toISOString(), message: "High density surface warming" },
+          { location: "Alipore (W75)", lat: 22.5280, lng: 88.3315, risk: "NORMAL", time: new Date().toISOString(), message: "Extensive tree canopy cooling" },
+          { location: "Shyambazar (W14)", lat: 22.6015, lng: 88.3735, risk: "CRITICAL", time: new Date().toISOString(), message: "Severe heritage block heat trap" },
+          { location: "Maniktala (W28)", lat: 22.5835, lng: 88.3730, risk: "HIGH", time: new Date().toISOString(), message: "Commercial zone thermal loading" },
+          { location: "Tangra (W58)", lat: 22.5440, lng: 88.3875, risk: "CRITICAL", time: new Date().toISOString(), message: "Industrial emission heat flare" },
+          { location: "Lake Town", lat: 22.6050, lng: 88.4050, risk: "ELEVATED", time: new Date().toISOString(), message: "Residential AC exhaust cluster" },
+          { location: "Rajarhat", lat: 22.6100, lng: 88.4700, risk: "NORMAL", time: new Date().toISOString(), message: "Open spaces facilitating wind flow" },
+          { location: "Barrackpore", lat: 22.7600, lng: 88.3700, risk: "ELEVATED", time: new Date().toISOString(), message: "Suburban density increasing" },
         ];
         res.writeHead(200, { ...CORS_HEADERS, "Content-Type": "application/json" });
         return res.end(JSON.stringify(mockAlerts));
@@ -376,15 +390,30 @@ const server = http.createServer(async (req, res) => {
         
         // Dynamic location profiles for realistic varied data
         const profiles: Record<string, {lat: number, lng: number, t: number, h: number, a: number, d: number, p: number}> = {
-          "Salt Lake Sector V": { lat: 22.5726, lng: 88.4339, t: 42.5, h: 68, a: 92, d: 85, p: 8.5 },
-          "Burra Bazar (W23)":  { lat: 22.5855, lng: 88.3582, t: 40.1, h: 72, a: 75, d: 98, p: 6.2 },
-          "Howrah (W17)":       { lat: 22.5800, lng: 88.3299, t: 39.5, h: 75, a: 60, d: 90, p: 5.5 },
-          "Behala (W124)":      { lat: 22.4920, lng: 88.3149, t: 38.0, h: 78, a: 45, d: 70, p: 4.1 },
-          "Park Street":        { lat: 22.5555, lng: 88.3522, t: 41.2, h: 65, a: 88, d: 82, p: 7.8 },
-          "New Town (AA-II)":   { lat: 22.5880, lng: 88.4735, t: 37.5, h: 60, a: 70, d: 45, p: 5.0 },
-          "Jadavpur":           { lat: 22.4989, lng: 88.3639, t: 38.8, h: 70, a: 55, d: 65, p: 4.8 },
-          "Ballygunge":         { lat: 22.5280, lng: 88.3659, t: 39.2, h: 68, a: 80, d: 75, p: 6.5 },
-          "Gariahat":           { lat: 22.5173, lng: 88.3657, t: 40.5, h: 66, a: 82, d: 85, p: 7.0 },
+
+        "Salt Lake Sector V": { lat: 22.5726, lng: 88.4339, t: 42.5, h: 68, a: 92, d: 85, p: 8.5 },
+        "Burra Bazar (W23)":  { lat: 22.5855, lng: 88.3582, t: 40.1, h: 72, a: 75, d: 98, p: 6.2 },
+        "Howrah (W17)":       { lat: 22.5800, lng: 88.3299, t: 39.5, h: 75, a: 60, d: 90, p: 5.5 },
+        "Behala (W124)":      { lat: 22.4920, lng: 88.3149, t: 38.0, h: 78, a: 45, d: 70, p: 4.1 },
+        "Park Street":        { lat: 22.5555, lng: 88.3522, t: 41.2, h: 65, a: 88, d: 82, p: 7.8 },
+        "New Town (AA-II)":   { lat: 22.5880, lng: 88.4735, t: 37.5, h: 60, a: 70, d: 45, p: 5.0 },
+        "Jadavpur":           { lat: 22.4989, lng: 88.3639, t: 38.8, h: 70, a: 55, d: 65, p: 4.8 },
+        "Ballygunge":         { lat: 22.5280, lng: 88.3659, t: 39.2, h: 68, a: 80, d: 75, p: 6.5 },
+        "Gariahat":           { lat: 22.5173, lng: 88.3657, t: 40.5, h: 66, a: 82, d: 85, p: 7.0 },
+        "Sealdah (W50)":      { lat: 22.5670, lng: 88.3716, t: 41.0, h: 71, a: 70, d: 92, p: 6.0 },
+        "Esplanade (W62)":    { lat: 22.5645, lng: 88.3525, t: 41.5, h: 66, a: 85, d: 80, p: 7.5 },
+        "Tollygunge (W108)":  { lat: 22.4950, lng: 88.3440, t: 38.5, h: 72, a: 50, d: 60, p: 4.5 },
+        "Dum Dum (W1)":       { lat: 22.6241, lng: 88.4239, t: 39.0, h: 74, a: 55, d: 65, p: 4.8 },
+        "Baranagar (W3)":     { lat: 22.6410, lng: 88.3700, t: 38.8, h: 75, a: 50, d: 68, p: 4.2 },
+        "Ultadanga (W33)":    { lat: 22.5936, lng: 88.3840, t: 39.5, h: 70, a: 60, d: 78, p: 5.2 },
+        "Kalighat (W82)":     { lat: 22.5200, lng: 88.3440, t: 39.8, h: 68, a: 65, d: 82, p: 5.8 },
+        "Alipore (W75)":      { lat: 22.5280, lng: 88.3315, t: 37.0, h: 65, a: 40, d: 40, p: 3.5 },
+        "Shyambazar (W14)":   { lat: 22.6015, lng: 88.3735, t: 40.2, h: 69, a: 65, d: 88, p: 6.0 },
+        "Maniktala (W28)":    { lat: 22.5835, lng: 88.3730, t: 39.8, h: 71, a: 60, d: 85, p: 5.5 },
+        "Tangra (W58)":       { lat: 22.5440, lng: 88.3875, t: 40.5, h: 74, a: 55, d: 90, p: 5.8 },
+        "Lake Town":          { lat: 22.6050, lng: 88.4050, t: 38.5, h: 67, a: 70, d: 70, p: 5.5 },
+        "Rajarhat":           { lat: 22.6100, lng: 88.4700, t: 37.8, h: 62, a: 65, d: 45, p: 4.8 },
+        "Barrackpore":        { lat: 22.7600, lng: 88.3700, t: 38.2, h: 76, a: 45, d: 55, p: 4.0 },
         };
 
         const prof = profiles[location] || { lat: 22.5726, lng: 88.3639, t: 37.2, h: 75, a: 45, d: 50, p: 3.2 };

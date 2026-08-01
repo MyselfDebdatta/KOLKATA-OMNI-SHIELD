@@ -1,9 +1,11 @@
-import Map, { Marker as MaplibreMarker, NavigationControl } from "react-map-gl/maplibre";
+import { useRef, useEffect, useCallback, useState } from "react";
+import Map, { Marker as MaplibreMarker, NavigationControl, type MapRef } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AlertTriangle } from "lucide-react";
 import { useThermalStore } from "@/store/thermal";
 
 export default function ThermalMap() {
+  const mapRef = useRef<MapRef>(null);
   const focusLocation = useThermalStore((s) => s.focusLocation);
   const globalData = useThermalStore((s) => s.globalData);
   const alerts = useThermalStore((s) => s.alerts);
@@ -11,20 +13,34 @@ export default function ThermalMap() {
   const activeData = globalData[focusLocation];
   const liveTelemetry = activeData?.telemetry;
 
+  const [viewState, setViewState] = useState({
+    longitude: 88.3639,
+    latitude: 22.5726,
+    zoom: 13.5,
+    pitch: 60,
+    bearing: 0
+  });
+
+  useEffect(() => {
+    if (liveTelemetry?.lng && liveTelemetry?.lat) {
+      mapRef.current?.flyTo({
+        center: [liveTelemetry.lng, liveTelemetry.lat],
+        zoom: 13.5,
+        duration: 2000,
+        essential: true
+      });
+    }
+  }, [focusLocation, liveTelemetry?.lng, liveTelemetry?.lat]);
+
   return (
     <Map
-      key={focusLocation}
+      ref={mapRef}
+      {...viewState}
+      onMove={evt => setViewState(evt.viewState)}
       style={{ width: '100%', height: '100%' }}
       interactive={true}
       dragPan={true}
       scrollZoom={true}
-      initialViewState={{
-        longitude: liveTelemetry?.lng || 88.3639,
-        latitude: liveTelemetry?.lat || 22.5726,
-        zoom: 13.5,
-        pitch: 60,
-        bearing: 0
-      }}
       mapStyle={{
         version: 8,
         sources: {

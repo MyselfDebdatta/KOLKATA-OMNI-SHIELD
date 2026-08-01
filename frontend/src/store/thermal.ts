@@ -55,6 +55,9 @@ type State = {
   setSandboxData: (data: any) => void;
   sandboxResult: any;
   runSandboxPrediction: () => Promise<void>;
+  lastFetchTime: Record<string, number>;
+  fetchRealWeather: (lat: number, lng: number, location: string) => Promise<any>;
+
 };
 
 const API_BASE = "http://localhost:3001/api/thermal";
@@ -91,48 +94,29 @@ export const useThermalStore = create<State>((set, get) => ({
     }
   },
 
+    lastFetchTime: {},
+  fetchRealWeather: async (lat: number, lng: number, location: string) => {
+    try {
+      const now = Date.now();
+      const last = get().lastFetchTime[location] || 0;
+      if (now - last < 5 * 60 * 1000) {
+        return null; // cached
+      }
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature&hourly=temperature_2m,relative_humidity_2m&timezone=Asia/Kolkata&forecast_days=1`);
+      const data = await res.json();
+      set(s => ({ lastFetchTime: { ...s.lastFetchTime, [location]: now } }));
+      return data;
+    } catch(e) {
+      console.warn("Open-Meteo fetch failed", e);
+      return null;
+    }
+  },
+
   globalData: {},
   generateMockData: async (location: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/data?location=${encodeURIComponent(location)}`);
-      if (!response.ok) throw new Error("API not ok");
-      const data = await response.json();
-      
-      const adaptedData: ThermalData = {
-        telemetry: {
-          ...data.telemetry,
-          temperature: data.telemetry.ambient_temp,
-          wind_speed: 12.5,
-          wind_direction: "SE",
-          solar_radiation: 850,
-          soil_moisture: 15,
-          drought_index: 7.5,
-        },
-        prediction: {
-          risk_score: data.prediction.risk_score,
-          risk_category: data.prediction.status,
-          confidence: 92.4,
-          reasons: [
-             `Heat Index: ${data.telemetry.ambient_temp}°C`,
-             `AC Exhaust: ${data.telemetry.ac_load}%`,
-             `Urban Density: ${data.telemetry.building_density}%`
-          ],
-          feature_importance: data.features.map((f: any) => ({
-            feature: f.feature,
-            impact: f.value / 100,
-            fill: f.impact === "positive" ? "#EF4444" : "#10B981"
-          }))
-        },
-        history: data.history
-      };
-
-      set((state) => ({
-        globalData: { ...state.globalData, [location]: adaptedData }
-      }));
-    } catch (error) {
-      console.warn("Backend /data failed, using fallback data.", error);
-      
-      const profiles: Record<string, {lat: number, lng: number, t: number, h: number, a: number, d: number, p: number}> = {
+    let baseData: any = null;
+    let prof: any = null;
+    const profiles: Record<string, {lat: number, lng: number, t: number, h: number, a: number, d: number, p: number}> = {
         "Salt Lake Sector V": { lat: 22.5726, lng: 88.4339, t: 42.5, h: 68, a: 92, d: 85, p: 8.5 },
         "Burra Bazar (W23)":  { lat: 22.5855, lng: 88.3582, t: 40.1, h: 72, a: 75, d: 98, p: 6.2 },
         "Howrah (W17)":       { lat: 22.5800, lng: 88.3299, t: 39.5, h: 75, a: 60, d: 90, p: 5.5 },
@@ -142,47 +126,90 @@ export const useThermalStore = create<State>((set, get) => ({
         "Jadavpur":           { lat: 22.4989, lng: 88.3639, t: 38.8, h: 70, a: 55, d: 65, p: 4.8 },
         "Ballygunge":         { lat: 22.5280, lng: 88.3659, t: 39.2, h: 68, a: 80, d: 75, p: 6.5 },
         "Gariahat":           { lat: 22.5173, lng: 88.3657, t: 40.5, h: 66, a: 82, d: 85, p: 7.0 },
-      };
+        "Sealdah (W50)":      { lat: 22.5670, lng: 88.3716, t: 41.0, h: 71, a: 70, d: 92, p: 6.0 },
+        "Esplanade (W62)":    { lat: 22.5645, lng: 88.3525, t: 41.5, h: 66, a: 85, d: 80, p: 7.5 },
+        "Tollygunge (W108)":  { lat: 22.4950, lng: 88.3440, t: 38.5, h: 72, a: 50, d: 60, p: 4.5 },
+        "Dum Dum (W1)":       { lat: 22.6241, lng: 88.4239, t: 39.0, h: 74, a: 55, d: 65, p: 4.8 },
+        "Baranagar (W3)":     { lat: 22.6410, lng: 88.3700, t: 38.8, h: 75, a: 50, d: 68, p: 4.2 },
+        "Ultadanga (W33)":    { lat: 22.5936, lng: 88.3840, t: 39.5, h: 70, a: 60, d: 78, p: 5.2 },
+        "Kalighat (W82)":     { lat: 22.5200, lng: 88.3440, t: 39.8, h: 68, a: 65, d: 82, p: 5.8 },
+        "Alipore (W75)":      { lat: 22.5280, lng: 88.3315, t: 37.0, h: 65, a: 40, d: 40, p: 3.5 },
+        "Shyambazar (W14)":   { lat: 22.6015, lng: 88.3735, t: 40.2, h: 69, a: 65, d: 88, p: 6.0 },
+        "Maniktala (W28)":    { lat: 22.5835, lng: 88.3730, t: 39.8, h: 71, a: 60, d: 85, p: 5.5 },
+        "Tangra (W58)":       { lat: 22.5440, lng: 88.3875, t: 40.5, h: 74, a: 55, d: 90, p: 5.8 },
+        "Lake Town":          { lat: 22.6050, lng: 88.4050, t: 38.5, h: 67, a: 70, d: 70, p: 5.5 },
+        "Rajarhat":           { lat: 22.6100, lng: 88.4700, t: 37.8, h: 62, a: 65, d: 45, p: 4.8 },
+        "Barrackpore":        { lat: 22.7600, lng: 88.3700, t: 38.2, h: 76, a: 45, d: 55, p: 4.0 }
+    };
+    prof = profiles[location] || { lat: 22.5726, lng: 88.3639, t: 37.2, h: 75, a: 45, d: 50, p: 3.2 };
 
-      const prof = profiles[location] || { lat: 22.5726, lng: 88.3639, t: 37.2, h: 75, a: 45, d: 50, p: 3.2 };
-      const temp = prof.t;
-      const humidity = prof.h;
-      const ac = prof.a;
-      const density = prof.d;
-      const power = prof.p;
+    try {
+      const response = await fetch(`${API_BASE}/data?location=${encodeURIComponent(location)}`);
+      if (response.ok) {
+        baseData = await response.json();
+      }
+    } catch (e) {}
 
-      const baseRisk = (temp * 0.4) + (humidity * 0.1) + (ac * 0.3) + (power * 0.1) + (density * 0.1);
-      const riskScore = Math.min(Math.round((baseRisk / 60) * 100), 100);
+    let temp = baseData?.telemetry?.ambient_temp || prof.t;
+    let humidity = baseData?.telemetry?.humidity || prof.h;
+    const ac = baseData?.telemetry?.ac_load || prof.a;
+    const density = baseData?.telemetry?.building_density || prof.d;
+    const power = baseData?.telemetry?.power_draw || prof.p;
+    
+    let forecastData = [];
+    let windSpeed = 12.5;
+    let feelsLike = temp;
 
-      const fallbackData: ThermalData = {
-        telemetry: {
-          temperature: temp, humidity, wind_speed: 12.5, wind_direction: "SE",
-          solar_radiation: 850, soil_moisture: 15, drought_index: 7.5,
-          lat: prof.lat, lng: prof.lng, ambient_temp: temp, ac_load: ac, building_density: density
-        },
-        prediction: {
-          risk_score: riskScore,
-          risk_category: riskScore > 85 ? "CRITICAL" : riskScore > 65 ? "HIGH" : "ELEVATED",
-          confidence: 92.4,
-          reasons: [
-             `[Fallback] Heat Index: ${temp}°C`,
-             `[Fallback] AC Exhaust: ${ac}%`,
-             `[Fallback] Urban Density: ${density}%`
-          ],
-          feature_importance: [
-            { feature: "AC Load Exhaust", impact: (ac * 0.4)/100, fill: "#EF4444" },
-            { feature: "Ambient Temp", impact: (temp * 0.3)/100, fill: "#EF4444" },
-            { feature: "Humidity", impact: (humidity * 0.1)/100, fill: "#EF4444" },
-            { feature: "Green Cover", impact: -0.1, fill: "#10B981" }
-          ]
-        },
-        history: Array.from({ length: 24 }).map((_, i) => ({ time: `${i}:00`, risk: Math.max(20, riskScore - 20 + Math.random() * 30) }))
-      };
-
-      set((state) => ({
-        globalData: { ...state.globalData, [location]: fallbackData }
-      }));
+    const weather = await get().fetchRealWeather(prof.lat, prof.lng, location);
+    if (weather && weather.current) {
+       temp = weather.current.temperature_2m || temp;
+       humidity = weather.current.relative_humidity_2m || humidity;
+       windSpeed = weather.current.wind_speed_10m || windSpeed;
+       feelsLike = weather.current.apparent_temperature || feelsLike;
+       
+       if (weather.hourly && weather.hourly.temperature_2m) {
+         const currentHour = new Date().getHours();
+         for(let i=0; i<24; i++) {
+           forecastData.push({
+             time: `${(currentHour + i) % 24}:00`,
+             temp: weather.hourly.temperature_2m[i]
+           });
+         }
+       }
     }
+
+    const baseRisk = (temp * 0.4) + (humidity * 0.1) + (ac * 0.3) + (power * 0.1) + (density * 0.1);
+    const riskScore = Math.min(Math.round((baseRisk / 60) * 100), 100);
+
+    const adaptedData: any = {
+      telemetry: {
+        temperature: temp, humidity, wind_speed: windSpeed, wind_direction: "SE",
+        solar_radiation: 850, soil_moisture: 15, drought_index: 7.5,
+        lat: prof.lat, lng: prof.lng, ambient_temp: feelsLike, ac_load: ac, building_density: density
+      },
+      prediction: {
+        risk_score: riskScore,
+        risk_category: riskScore > 85 ? "CRITICAL" : riskScore > 65 ? "HIGH" : "ELEVATED",
+        confidence: 92.4,
+        reasons: [
+           `Heat Index: ${temp}°C`,
+           `AC Exhaust: ${ac}%`,
+           `Urban Density: ${density}%`
+        ],
+        feature_importance: [
+          { feature: "AC Load Exhaust", impact: (ac * 0.4)/100, fill: "#EF4444" },
+          { feature: "Ambient Temp", impact: (temp * 0.3)/100, fill: "#EF4444" },
+          { feature: "Humidity", impact: (humidity * 0.1)/100, fill: "#EF4444" },
+          { feature: "Green Cover", impact: -0.1, fill: "#10B981" }
+        ]
+      },
+      history: baseData?.history || Array.from({ length: 24 }).map((_, i) => ({ time: `${i}:00`, risk: Math.max(20, riskScore - 20 + Math.random() * 30) })),
+      forecast: forecastData
+    };
+
+    set((state) => ({
+      globalData: { ...state.globalData, [location]: adaptedData }
+    }));
   },
 
   sandboxData: {

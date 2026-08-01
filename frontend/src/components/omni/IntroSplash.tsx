@@ -7,46 +7,151 @@ import { t } from "@/lib/i18n";
 
 export let hasPlayedIntro = false;
 
+/* ── GPU-accelerated CSS keyframes (injected once) ──────────────────── */
+const STYLE_ID = "intro-splash-keyframes";
+function injectKeyframes() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = `
+    @keyframes float-up {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.5; }
+      100% { transform: translateY(calc(-100vh - 200px)) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
+    }
+    @keyframes orb-rise {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 0.6; }
+      100% { transform: translateY(calc(-100vh - 100px)) translateX(var(--drift)); opacity: 0; }
+    }
+    @keyframes glitter-twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50%      { opacity: 1; transform: scale(1.2); }
+    }
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.15; transform: scale(0.8); }
+      50%      { opacity: 0.4; transform: scale(1.2); }
+    }
+    @keyframes hud-spin { to { transform: rotate(360deg); } }
+    @keyframes hud-spin-reverse { to { transform: rotate(-360deg); } }
+    @keyframes radar-ping {
+      0%   { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/* ── BackgroundAnimation (CSS only — zero framer-motion) ───────────── */
 const BackgroundAnimation = React.memo(() => {
-  const leaves = useMemo(() => Array.from({ length: 35 }).map(() => ({
+  useMemo(() => injectKeyframes(), []);
+
+  const leaves = useMemo(() => Array.from({ length: 8 }).map(() => ({
     left: Math.random() * 100 + "%",
-    scale: Math.random() * 0.5 + 0.5,
-    delay: Math.random() * 5,
-    duration: Math.random() * 8 + 6,
-    xTarget: (Math.random() - 0.5) * 200,
-    rotateTarget: Math.random() * 360 * (Math.random() > 0.5 ? 1 : -1)
+    scale: Math.random() * 0.4 + 0.6,
+    delay: Math.random() * 4,
+    duration: Math.random() * 6 + 7,
+    drift: (Math.random() - 0.5) * 160 + "px",
+    spin: Math.random() * 360 * (Math.random() > 0.5 ? 1 : -1) + "deg",
   })), []);
-  
-  const orbs = useMemo(() => Array.from({ length: 45 }).map(() => ({
+
+  const orbs = useMemo(() => Array.from({ length: 8 }).map(() => ({
     size: Math.random() * 4 + 2 + "px",
     left: Math.random() * 100 + "%",
     delay: Math.random() * 3,
-    duration: Math.random() * 4 + 3,
-    xTarget: (Math.random() - 0.5) * 100
+    duration: Math.random() * 5 + 4,
+    drift: (Math.random() - 0.5) * 80 + "px",
   })), []);
 
-  const h = typeof window !== "undefined" ? window.innerHeight : 1000;
+  /* ✨ Glitter sparkle particles — tiny dots that twinkle randomly */
+  const glitter = useMemo(() => Array.from({ length: 20 }).map(() => ({
+    left: Math.random() * 100 + "%",
+    top: Math.random() * 100 + "%",
+    size: Math.random() * 3 + 1 + "px",
+    delay: Math.random() * 6,
+    duration: Math.random() * 2 + 1.5,
+  })), []);
+
+  /* 🌟 Large diffused glow pulses */
+  const glows = useMemo(() => Array.from({ length: 6 }).map(() => ({
+    left: Math.random() * 80 + 10 + "%",
+    top: Math.random() * 80 + 10 + "%",
+    size: Math.random() * 120 + 60 + "px",
+    delay: Math.random() * 5,
+    duration: Math.random() * 4 + 3,
+  })), []);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Floating leaves — CSS animated */}
       {leaves.map((l, i) => (
-        <motion.div
+        <div
           key={`leaf-${i}`}
           className="absolute text-emerald/30 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-          style={{ left: l.left, bottom: "-10%", scale: l.scale }}
-          animate={{ y: [0, -h - 200], x: [0, l.xTarget], rotate: [0, l.rotateTarget], opacity: [0, 0.8, 0] }}
-          transition={{ duration: l.duration, repeat: Infinity, ease: "linear", delay: l.delay }}
+          style={{
+            left: l.left,
+            bottom: "-10%",
+            transform: `scale(${l.scale})`,
+            animation: `float-up ${l.duration}s linear ${l.delay}s infinite`,
+            "--drift": l.drift,
+            "--spin": l.spin,
+          } as React.CSSProperties}
         >
           <Leaf className="h-8 w-8" />
-        </motion.div>
+        </div>
       ))}
+
+      {/* Rising orbs — CSS animated */}
       {orbs.map((o, i) => (
-        <motion.div
+        <div
           key={`orb-${i}`}
           className="absolute rounded-full bg-emerald/40 shadow-[0_0_12px_rgba(16,185,129,0.8)]"
-          style={{ width: o.size, height: o.size, left: o.left, bottom: "-5%" }}
-          animate={{ y: [0, -h - 100], x: [0, o.xTarget], opacity: [0, 1, 0] }}
-          transition={{ duration: o.duration, repeat: Infinity, ease: "linear", delay: o.delay }}
+          style={{
+            width: o.size,
+            height: o.size,
+            left: o.left,
+            bottom: "-5%",
+            animation: `orb-rise ${o.duration}s linear ${o.delay}s infinite`,
+            "--drift": o.drift,
+          } as React.CSSProperties}
+        />
+      ))}
+
+      {/* ✨ Glitter sparkles — tiny twinkling dots scattered across the screen */}
+      {glitter.map((g, i) => (
+        <div
+          key={`glitter-${i}`}
+          className="absolute rounded-full bg-white"
+          style={{
+            width: g.size,
+            height: g.size,
+            left: g.left,
+            top: g.top,
+            animation: `glitter-twinkle ${g.duration}s ease-in-out ${g.delay}s infinite`,
+            boxShadow: `0 0 6px rgba(255,255,255,0.9), 0 0 12px rgba(16,185,129,0.6)`,
+          }}
+        />
+      ))}
+
+      {/* 🌟 Diffused glow pulses — large ambient light spots */}
+      {glows.map((g, i) => (
+        <div
+          key={`glow-${i}`}
+          className="absolute rounded-full"
+          style={{
+            width: g.size,
+            height: g.size,
+            left: g.left,
+            top: g.top,
+            background: i % 2 === 0
+              ? "radial-gradient(circle, rgba(16,185,129,0.35) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 70%)",
+            animation: `glow-pulse ${g.duration}s ease-in-out ${g.delay}s infinite`,
+            filter: "blur(8px)",
+          }}
         />
       ))}
     </div>
@@ -94,38 +199,31 @@ export function IntroSplash() {
             {/* Logo Sequence */}
             <div className="relative mb-8 flex items-center justify-center">
               
-              {/* Outer Radar Ping */}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0.8 }}
-                animate={{ scale: 2.5, opacity: 0 }}
-                transition={{ duration: 3, ease: "easeOut", repeat: Infinity, repeatDelay: 0.5 }}
+              {/* Outer Radar Pings — CSS animated */}
+              <div
                 className="absolute h-32 w-32 rounded-[2rem] border-[2px] border-emerald/40"
+                style={{ animation: "radar-ping 3s ease-out infinite" }}
               />
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0.6 }}
-                animate={{ scale: 3, opacity: 0 }}
-                transition={{ duration: 3, ease: "easeOut", repeat: Infinity, repeatDelay: 0.5, delay: 1 }}
+              <div
                 className="absolute h-32 w-32 rounded-[2rem] border-[1px] border-emerald/20"
+                style={{ animation: "radar-ping 3s ease-out 1s infinite" }}
               />
 
-              {/* High-Tech HUD Rings */}
-              <motion.div 
-                animate={{ rotate: 360 }} 
-                transition={{ duration: 8, ease: "linear", repeat: Infinity }}
+              {/* High-Tech HUD Rings — CSS animated */}
+              <div 
                 className="absolute h-[145px] w-[145px] rounded-full border-[2px] border-emerald/40 border-r-transparent border-l-transparent drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                style={{ animation: "hud-spin 8s linear infinite" }}
               />
-              <motion.div 
-                animate={{ rotate: -360 }} 
-                transition={{ duration: 25, ease: "linear", repeat: Infinity }}
+              <div 
                 className="absolute h-[180px] w-[180px] rounded-full border-[1px] border-dashed border-white/20"
+                style={{ animation: "hud-spin-reverse 25s linear infinite" }}
               />
-              <motion.div 
-                animate={{ rotate: 360, scale: [1, 1.05, 1] }} 
-                transition={{ duration: 15, ease: "easeInOut", repeat: Infinity }}
+              <div 
                 className="absolute h-[220px] w-[220px] rounded-full border-[1px] border-emerald/20 border-t-emerald/60 border-b-emerald/60"
+                style={{ animation: "hud-spin 15s ease-in-out infinite" }}
               />
 
-              {/* Core Logo Container */}
+              {/* Core Logo Container — the ONE framer-motion element we keep for the spring entrance */}
               <motion.div 
                 initial={{ scale: 0.4, rotate: -30, opacity: 0, filter: "blur(10px)" }}
                 animate={{ scale: 1, rotate: 0, opacity: 1, filter: "blur(0px)" }}

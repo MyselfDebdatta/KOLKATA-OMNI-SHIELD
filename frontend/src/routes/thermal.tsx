@@ -19,7 +19,7 @@ export const Route = createFileRoute("/thermal")({
 });
 
 function ThermalPage() {
-  const [tab, setTab] = useState<"map" | "xai" | "sandbox" | "alerts">("map");
+  const [tab, setTab] = useState<"map" | "xai" | "sandbox" | "alerts" | "forecast">("map");
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -123,6 +123,20 @@ function ThermalPage() {
                  <option value="Jadavpur">Jadavpur</option>
                  <option value="Ballygunge">Ballygunge</option>
                  <option value="Gariahat">Gariahat</option>
+                 <option value="Sealdah (W50)">Sealdah (W50)</option>
+                 <option value="Esplanade (W62)">Esplanade (W62)</option>
+                 <option value="Tollygunge (W108)">Tollygunge (W108)</option>
+                 <option value="Dum Dum (W1)">Dum Dum (W1)</option>
+                 <option value="Baranagar (W3)">Baranagar (W3)</option>
+                 <option value="Ultadanga (W33)">Ultadanga (W33)</option>
+                 <option value="Kalighat (W82)">Kalighat (W82)</option>
+                 <option value="Alipore (W75)">Alipore (W75)</option>
+                 <option value="Shyambazar (W14)">Shyambazar (W14)</option>
+                 <option value="Maniktala (W28)">Maniktala (W28)</option>
+                 <option value="Tangra (W58)">Tangra (W58)</option>
+                 <option value="Lake Town">Lake Town</option>
+                 <option value="Rajarhat">Rajarhat</option>
+                 <option value="Barrackpore">Barrackpore</option>
                </select>
             </div>
           </div>
@@ -170,6 +184,7 @@ function ThermalPage() {
                    { id: "xai", label: "AI Risk Analysis", icon: Activity },
                    { id: "sandbox", label: "Scenario Predictor", icon: Box },
                    { id: "alerts", label: "City Alerts", icon: ShieldAlert },
+                   { id: "forecast", label: "24-Hour Forecast", icon: Sun },
                  ].map(item => (
                    <button
                      key={item.id}
@@ -199,6 +214,41 @@ function ThermalPage() {
                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">AC Load</span>
                  </div>
               </div>
+              
+              {/* Live Weather Pulse Card */}
+              <div className="rounded-3xl p-6 bg-card/40 border border-border">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Live Weather Pulse</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <ThermometerSun className="text-orange-500 w-6 h-6" />
+                    <div>
+                      <div className="text-lg font-bold text-white">{liveTelemetry?.temperature?.toFixed(1) || '--'}°C</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Real Temp</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Droplets className="text-blue-500 w-6 h-6" />
+                    <div>
+                      <div className="text-lg font-bold text-white">{liveTelemetry?.humidity?.toFixed(1) || '--'}%</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Humidity</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Wind className="text-emerald-500 w-6 h-6" />
+                    <div>
+                      <div className="text-lg font-bold text-white">{liveTelemetry?.wind_speed?.toFixed(1) || '--'} km/h</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Wind Speed</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Sun className="text-yellow-500 w-6 h-6" />
+                    <div>
+                      <div className="text-lg font-bold text-white">{liveTelemetry?.ambient_temp?.toFixed(1) || '--'}°C</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Feels Like</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Right Column - Dynamic Content */}
@@ -206,26 +256,11 @@ function ThermalPage() {
               
               {/* TAB: MAP */}
               {tab === "map" && (
-                <div className="absolute inset-0 w-full h-full">
+                <div className="w-full h-[500px] rounded-xl overflow-hidden relative m-4">
                   <div className="absolute inset-0 z-0 bg-[#1a1a1a]">
                     <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground">Loading Map Engine...</div>}>
                       {isMounted && <ThermalMap />}
                     </Suspense>
-                  </div>
-                  {/* Floating overlay on map */}
-                  <div className="absolute bottom-6 left-6 right-16 pointer-events-none z-10">
-                    <div className="rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 p-4 pointer-events-auto">
-                       <h3 className="font-bold text-sm text-white mb-3 flex items-center gap-2">
-                         <Activity size={16} className="text-red-500" /> Historical Trend (24h)
-                       </h3>
-                       <div className="h-32 w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={history}>
-                              <Line type="monotone" dataKey="risk" stroke="#ef4444" strokeWidth={3} dot={false} />
-                            </LineChart>
-                          </ResponsiveContainer>
-                       </div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -273,6 +308,37 @@ function ThermalPage() {
                           { name: "Deterministic Threat Engine", org: "Local Digital Twin Sandbox" }
                         ]}
                      />
+                   </div>
+
+                   <div className="mt-8">
+                     <h3 className="text-sm font-bold text-white mb-3">Top 5 Highest-Risk Wards</h3>
+                     <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden">
+                       <table className="w-full text-sm text-left">
+                         <thead className="bg-white/5 border-b border-white/10 text-muted-foreground text-xs uppercase">
+                           <tr>
+                             <th className="px-4 py-2">Ward</th>
+                             <th className="px-4 py-2">Risk Score</th>
+                             <th className="px-4 py-2">Category</th>
+                           </tr>
+                         </thead>
+                         <tbody>
+                           {Object.entries(globalData)
+                             .sort((a, b) => (b[1].prediction?.risk_score || 0) - (a[1].prediction?.risk_score || 0))
+                             .slice(0, 5)
+                             .map(([loc, data], i) => (
+                               <tr key={loc} className="border-b border-white/5 last:border-0">
+                                 <td className="px-4 py-2 font-medium text-white">{loc}</td>
+                                 <td className="px-4 py-2 text-red-400 font-bold">{data.prediction?.risk_score}%</td>
+                                 <td className="px-4 py-2 text-xs">
+                                   <span className={`px-2 py-1 rounded-md ${data.prediction?.risk_category === 'CRITICAL' ? 'bg-red-500/20 text-red-500' : 'bg-orange-500/20 text-orange-500'}`}>
+                                     {data.prediction?.risk_category}
+                                   </span>
+                                 </td>
+                               </tr>
+                             ))}
+                         </tbody>
+                       </table>
+                     </div>
                    </div>
                 </div>
               )}
@@ -337,7 +403,7 @@ function ThermalPage() {
                 </div>
               )}
 
-              {/* TAB: ALERTS */}
+               {/* TAB: ALERTS */}
               {tab === "alerts" && (
                 <div className="p-8 h-full flex flex-col overflow-y-auto">
                    <h2 className="text-xl font-bold text-white mb-2">City-Wide Alerts</h2>
@@ -372,7 +438,47 @@ function ThermalPage() {
                 </div>
               )}
 
+              {/* TAB: FORECAST */}
+              {tab === "forecast" && (
+                <div className="p-8 h-full flex flex-col">
+                  <h2 className="text-xl font-bold text-white mb-2">24-Hour Heat Forecast</h2>
+                  <p className="text-sm text-muted-foreground mb-8">
+                    Predicted temperature trends from Open-Meteo for {focusLocation}.
+                  </p>
+                  <div className="flex-1 w-full min-h-[300px] relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={activeData?.forecast || []}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                        <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" tick={{ fill: '#e2e8f0', fontSize: 12 }} />
+                        <YAxis domain={['auto', 'auto']} stroke="hsl(var(--muted-foreground))" tick={{ fill: '#e2e8f0', fontSize: 12 }} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} 
+                        />
+                        <Line type="monotone" dataKey="temp" name="Temperature (°C)" stroke="#ef4444" strokeWidth={3} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+
             </div>
+          </div>
+
+          <div className="rounded-3xl bg-card/40 border border-border p-6 mt-2">
+             <h3 className="font-bold text-sm text-white mb-4 flex items-center gap-2">
+               <Activity size={18} className="text-red-500" /> Historical Trend (24h)
+             </h3>
+             <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={history}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12, fill: '#e2e8f0' }} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12, fill: '#e2e8f0' }} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} />
+                    <Line type="monotone" dataKey="risk" name="Risk Score" stroke="#ef4444" strokeWidth={3} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+             </div>
           </div>
         </main>
 
