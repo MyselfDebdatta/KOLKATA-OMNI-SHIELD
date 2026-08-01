@@ -141,12 +141,38 @@ function ThermalPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+          <div className="flex flex-col flex-1">
             
-            {/* Left Column - Navigation & Risk Panel */}
-            <div className="lg:col-span-1 flex flex-col gap-6">
+            {/* Top Horizontal Navigation */}
+            <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide relative z-10 w-full">
+              {[
+                { id: "map", label: "Thermal Grid View", icon: MapIcon },
+                { id: "xai", label: "AI Risk Analysis", icon: Activity },
+                { id: "sandbox", label: "Scenario Predictor", icon: Box },
+                { id: "alerts", label: "City Alerts", icon: ShieldAlert },
+                { id: "forecast", label: "24-Hour Forecast", icon: Sun },
+              ].map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => setTab(item.id as any)}
+                  className={`flex whitespace-nowrap items-center gap-3 px-6 py-4 rounded-3xl text-sm font-medium transition-all flex-1 justify-center ${
+                    tab === item.id 
+                      ? "bg-white/10 text-white shadow-sm border border-white/10" 
+                      : "bg-card/40 border border-border text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  }`}
+                >
+                  <item.icon size={18} className={tab === item.id ? "text-red-400" : ""} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 mb-6">
               
-              {/* Core Risk Panel */}
+              {/* Right Column - Telemetry & Risk (Span 1, Order 2 on desktop) */}
+              <div className="lg:col-span-1 flex flex-col gap-6 h-auto lg:h-[600px] order-1 lg:order-2">
+                
+                {/* Core Risk Panel */}
               <div className={`rounded-3xl p-6 border relative overflow-hidden transition-all ${
                 livePrediction?.risk_category === 'CRITICAL' ? 'bg-red-500/10 border-red-500/30' : 'bg-emerald-500/10 border-emerald-500/30'
               }`}>
@@ -177,29 +203,7 @@ function ThermalPage() {
                  </div>
               </div>
 
-              {/* Navigation Tabs */}
-              <div className="rounded-3xl bg-card/40 border border-border p-2 flex flex-col gap-1">
-                 {[
-                   { id: "map", label: "Thermal Grid View", icon: MapIcon },
-                   { id: "xai", label: "AI Risk Analysis", icon: Activity },
-                   { id: "sandbox", label: "Scenario Predictor", icon: Box },
-                   { id: "alerts", label: "City Alerts", icon: ShieldAlert },
-                   { id: "forecast", label: "24-Hour Forecast", icon: Sun },
-                 ].map(item => (
-                   <button
-                     key={item.id}
-                     onClick={() => setTab(item.id as any)}
-                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                       tab === item.id 
-                         ? "bg-white/10 text-white shadow-sm" 
-                         : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
-                     }`}
-                   >
-                     <item.icon size={18} className={tab === item.id ? "text-red-400" : ""} />
-                     {item.label}
-                   </button>
-                 ))}
-              </div>
+
 
               {/* Live Telemetry Mini-Grid */}
               <div className="grid grid-cols-2 gap-3">
@@ -216,9 +220,9 @@ function ThermalPage() {
               </div>
               
               {/* Live Weather Pulse Card */}
-              <div className="rounded-3xl p-6 bg-card/40 border border-border mt-auto">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Live Weather Pulse</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-3xl p-6 bg-card/40 border border-border flex-1 flex flex-col justify-center">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">Live Weather Pulse</h3>
+                <div className="grid grid-cols-2 gap-6">
                   <div className="flex items-center gap-3">
                     <ThermometerSun className="text-orange-500 w-6 h-6" />
                     <div>
@@ -251,8 +255,8 @@ function ThermalPage() {
               </div>
             </div>
 
-            {/* Right Column - Dynamic Content */}
-            <div className="lg:col-span-2 rounded-3xl bg-card/40 border border-border overflow-hidden flex flex-col h-[700px] relative">
+            {/* Left Column - Dynamic Content (Span 2, Order 1 on desktop) */}
+            <div className="lg:col-span-2 rounded-3xl bg-card/40 border border-border overflow-hidden flex flex-col h-[600px] relative order-2 lg:order-1">
               
               {/* TAB: MAP */}
               {tab === "map" && (
