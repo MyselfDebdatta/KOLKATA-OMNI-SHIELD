@@ -6,18 +6,15 @@ import { Header } from "@/components/omni/Header";
 import { IntroSplash, hasPlayedIntro } from "@/components/omni/IntroSplash";
 import { TestimonialCarousel } from "@/components/omni/TestimonialCarousel";
 import { Footer } from "@/components/omni/Footer";
-/* Lazy URL references — Vite resolves these as URL strings without bundling
-   the raw image bytes into the initial JS chunk. The browser only downloads
-   each PNG when its CSS background-image is first painted (i.e. scrolled into view). */
-const howrahBg = new URL("@/assets/howrah_hero.png", import.meta.url).href;
-const victoriaBg = new URL("@/assets/victoria_bg.png", import.meta.url).href;
-const vidyasagarBg = new URL("@/assets/vidyasagar_bg.png", import.meta.url).href;
-const dakshineswarBg = new URL("@/assets/dakshineswar_bg.png", import.meta.url).href;
-const yellowTaxiBg = new URL("@/assets/yellow_taxi_bg.png", import.meta.url).href;
-const kolkataTramBg = new URL("@/assets/kolkata_tram_bg.png", import.meta.url).href;
-const edenGardensBg = new URL("@/assets/eden_gardens_bg.png", import.meta.url).href;
-const prinsepGhatBg = new URL("@/assets/prinsep_ghat_bg.png", import.meta.url).href;
-const stPaulsBg = new URL("@/assets/st_pauls_bg.png", import.meta.url).href;
+import howrahBg from "@/assets/howrah_hero.png";
+import victoriaBg from "@/assets/victoria_bg.png";
+import vidyasagarBg from "@/assets/vidyasagar_bg.png";
+import dakshineswarBg from "@/assets/dakshineswar_bg.png";
+import yellowTaxiBg from "@/assets/yellow_taxi_bg.png";
+import kolkataTramBg from "@/assets/kolkata_tram_bg.png";
+import edenGardensBg from "@/assets/eden_gardens_bg.png";
+import prinsepGhatBg from "@/assets/prinsep_ghat_bg.png";
+import stPaulsBg from "@/assets/st_pauls_bg.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
