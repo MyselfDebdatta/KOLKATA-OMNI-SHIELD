@@ -1,16 +1,14 @@
 import { motion } from "framer-motion";
-import { Radio, Sun, Moon, ArrowLeft } from "lucide-react";
+import { Radio, ArrowLeft } from "lucide-react";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence } from "framer-motion";
 import { useOmni } from "@/store/omni";
-import { LanguageToggle } from "@/components/omni/LanguageToggle";
 import { t } from "@/lib/i18n";
 import logoUrl from "@/assets/logo_new.jpg";
 
 export function Header({ minimal = false, forceOverview }: { minimal?: boolean; forceOverview?: boolean }) {
-  const [dark, setDark] = useState(true);
   const guardian = useOmni((s) => s.guardianMode);
   const lang = useOmni((s) => s.language);
   const routerState = useRouterState();
@@ -64,7 +62,6 @@ export function Header({ minimal = false, forceOverview }: { minimal?: boolean; 
         </nav>
 
         <div className="flex items-center gap-2 md:gap-3">
-          <LanguageToggle />
           {!minimal && (
             <div className={`hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium md:flex ${guardian ? "border-emerald/40 bg-emerald/10 text-emerald" : "border-border bg-muted/40 text-muted-foreground"}`}>
               <span className="relative flex h-2 w-2">
@@ -74,10 +71,6 @@ export function Header({ minimal = false, forceOverview }: { minimal?: boolean; 
               {guardian ? t("guardianOn", lang) : t("guardianOff", lang)}
             </div>
           )}
-
-          <button onClick={() => setDark((d) => !d)} className="hidden h-9 w-9 items-center justify-center rounded-full border border-border bg-muted/40 text-muted-foreground transition hover:text-foreground md:flex" aria-label="Toggle theme">
-            {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
 
           {isOverview && (
             <Link to="/app" className="inline-flex items-center gap-2 rounded-full bg-emerald px-5 py-2 text-sm font-semibold text-[var(--navy)] hover:opacity-90 shadow-[0_0_15px_rgba(16,185,129,0.25)] transition">
