@@ -277,17 +277,38 @@ function ThermalPage() {
                      Visualizing which urban telemetry factors are driving the {focusLocation} fire risk score.
                    </p>
                    
-                   <div className="flex-1 w-full relative">
+                   <div className="flex-1 w-full min-h-[300px] relative">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={shapData} layout="vertical" margin={{ left: 100, right: 30, top: 20, bottom: 20 }}>
-                          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
-                          <XAxis type="number" stroke="hsl(var(--muted-foreground))" domain={[0, 'dataMax + 0.1']} />
-                          <YAxis dataKey="feature" type="category" stroke="hsl(var(--foreground))" width={100} tick={{ fill: '#e2e8f0', fontSize: 12 }} />
-                          <RechartsTooltip 
-                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                            contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} 
+                        <BarChart data={shapData} layout="vertical" margin={{ left: 60, right: 30, top: 20, bottom: 20 }}>
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.4} />
+                          <XAxis 
+                            type="number" 
+                            stroke="hsl(var(--muted-foreground))" 
+                            domain={[0, 'dataMax + 0.05']} 
+                            tickFormatter={(val) => val.toFixed(2)}
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: '#a1a1aa', fontSize: 11 }}
+                            tickMargin={12}
                           />
-                          <Bar dataKey="impact" radius={[0, 4, 4, 0]} barSize={32}>
+                          <YAxis 
+                            dataKey="feature" 
+                            type="category" 
+                            stroke="hsl(var(--foreground))" 
+                            width={110} 
+                            tick={{ fill: '#e2e8f0', fontSize: 12, fontWeight: 500 }} 
+                            axisLine={false}
+                            tickLine={false}
+                            tickMargin={12}
+                          />
+                          <RechartsTooltip 
+                            cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                            contentStyle={{ backgroundColor: 'rgba(9,9,11,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }} 
+                            itemStyle={{ fontWeight: 'bold' }}
+                            formatter={(value: number) => [value.toFixed(3), 'Impact Score']}
+                            labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
+                          />
+                          <Bar dataKey="impact" radius={[0, 8, 8, 0]} barSize={16}>
                             {shapData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.fill} />
                             ))}
