@@ -267,7 +267,7 @@ function ThermalPage() {
 
               {/* TAB: XAI */}
               {tab === "xai" && (
-                <div className="p-8 h-full flex flex-col">
+                <div className="p-8 h-full flex flex-col overflow-y-auto">
                    <h2 className="text-xl font-bold text-white mb-2">SHAP Feature Importance</h2>
                    <p className="text-sm text-muted-foreground mb-8">
                      Visualizing which urban telemetry factors are driving the {focusLocation} fire risk score.
