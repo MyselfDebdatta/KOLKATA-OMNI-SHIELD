@@ -4,7 +4,7 @@ export type ThermalAlert = {
   location: string;
   lat: number;
   lng: number;
-  risk: "CRITICAL" | "HIGH" | "ELEVATED";
+  risk: "CRITICAL" | "HIGH" | "ELEVATED" | "NORMAL";
   time: string;
   message: string;
 };
