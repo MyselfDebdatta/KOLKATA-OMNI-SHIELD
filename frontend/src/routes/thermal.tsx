@@ -216,7 +216,7 @@ function ThermalPage() {
               </div>
               
               {/* Live Weather Pulse Card */}
-              <div className="rounded-3xl p-6 bg-card/40 border border-border">
+              <div className="rounded-3xl p-6 bg-card/40 border border-border mt-auto">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Live Weather Pulse</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
