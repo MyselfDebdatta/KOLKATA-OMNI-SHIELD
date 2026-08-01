@@ -156,7 +156,7 @@ export const useThermalStore = create<State>((set, get) => ({
     const density = baseData?.telemetry?.building_density || prof.d;
     const power = baseData?.telemetry?.power_draw || prof.p;
     
-    let forecastData = [];
+    let forecastData = get().globalData[location]?.forecast || [];
     let windSpeed = 12.5;
     let feelsLike = temp;
 
@@ -169,6 +169,7 @@ export const useThermalStore = create<State>((set, get) => ({
        
        if (weather.hourly && weather.hourly.temperature_2m) {
          const currentHour = new Date().getHours();
+         forecastData = []; // Clear the preserved cache before pushing fresh data
          for(let i=0; i<24; i++) {
            forecastData.push({
              time: `${(currentHour + i) % 24}:00`,
