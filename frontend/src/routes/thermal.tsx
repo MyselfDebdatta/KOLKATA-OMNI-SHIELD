@@ -500,6 +500,7 @@ function ThermalPage() {
 
             </div>
           </div>
+          </div>
 
           <div className="rounded-3xl bg-card/40 border border-border p-6 mt-2">
              <h3 className="font-bold text-sm text-white mb-4 flex items-center gap-2">
