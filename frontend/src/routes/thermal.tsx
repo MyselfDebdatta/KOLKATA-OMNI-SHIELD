@@ -170,10 +170,10 @@ function ThermalPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 mb-6">
               
               {/* Right Column - Telemetry & Risk (Span 1, Order 2 on desktop) */}
-              <div className="lg:col-span-1 flex flex-col gap-6 h-auto lg:h-[750px] order-1 lg:order-2">
+              <div className="lg:col-span-1 flex flex-col gap-6 h-auto lg:h-[750px] order-1 lg:order-2 overflow-y-auto scrollbar-hide">
                 
                 {/* Core Risk Panel */}
-              <div className={`rounded-3xl p-6 border relative overflow-hidden transition-all ${
+              <div className={`shrink-0 rounded-3xl p-6 border relative overflow-hidden transition-all ${
                 livePrediction?.risk_category === 'CRITICAL' ? 'bg-red-500/10 border-red-500/30' : 'bg-emerald-500/10 border-emerald-500/30'
               }`}>
                  <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -206,7 +206,7 @@ function ThermalPage() {
 
 
               {/* Live Telemetry Mini-Grid */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 shrink-0">
                  <div className="rounded-2xl bg-card/40 border border-border p-4 flex flex-col items-center text-center">
                    <ThermometerSun className="text-orange-500 mb-2 h-6 w-6" />
                    <span className="text-xl font-bold text-white">{liveTelemetry?.temperature?.toFixed(1) || '--'}°C</span>
@@ -220,7 +220,7 @@ function ThermalPage() {
               </div>
               
               {/* Live Weather Pulse Card */}
-              <div className="rounded-3xl p-6 bg-card/40 border border-border flex-1 flex flex-col justify-center">
+              <div className="shrink-0 rounded-3xl p-6 bg-card/40 border border-border flex-1 flex flex-col justify-center min-h-[200px]">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">Live Weather Pulse</h3>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="flex items-center gap-3">
